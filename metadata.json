@@ -1,0 +1,6 @@
+{
+  "name": "NetPará",
+  "description": "Modern, premium social media platform for sharing posts, short reels, messaging, and discovering community content.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

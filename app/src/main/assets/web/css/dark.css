@@ -1,0 +1,50 @@
+/* NetPará Dark Mode Theme */
+body.dark-mode {
+  --bg-app: #0B132B;
+  --surface: #16203B;
+  --surface-hover: #1F2D52;
+  --surface-border: #25355F;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  --bottom-bar-bg: rgba(22, 32, 59, 0.95);
+  --header-bg: rgba(22, 32, 59, 0.92);
+  --primary-light: rgba(79, 70, 229, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+body.dark-mode .post-card,
+body.dark-mode .composer-prompt-card,
+body.dark-mode .profile-header-card,
+body.dark-mode .bottom-sheet-card,
+body.dark-mode .onboarding-screen {
+  background: var(--surface);
+  border-color: var(--surface-border);
+}
+
+body.dark-mode .form-input,
+body.dark-mode .chat-text-input,
+body.dark-mode .composer-prompt-input {
+  background: #111A31;
+  border-color: var(--surface-border);
+  color: var(--text-main);
+}
+
+body.dark-mode .msg-bubble.incoming {
+  background: #1F2D52;
+  border-color: var(--surface-border);
+  color: #F8FAFC;
+}
+
+body.dark-mode .reactions-bubble-popup {
+  background: #16203B;
+  border-color: var(--surface-border);
+}
+
+body.dark-mode .action-pill-btn:active,
+body.dark-mode .icon-btn:active,
+body.dark-mode .chat-item:active {
+  background: var(--surface-hover);
+}

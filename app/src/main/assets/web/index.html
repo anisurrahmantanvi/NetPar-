@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0F172A">
+  <title>NetPará</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="dark-mode">
+
+  <div id="app-container">
+    <!-- Top Navigation Bar -->
+    <header class="top-bar">
+      <div class="brand-wrapper" onclick="NetParaApp.navigate('feed')">
+        <svg class="brand-logo-img" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="100" rx="28" fill="url(#brandGrad)"/>
+          <path d="M28 72V28L54 54V28H72V72L46 46V72H28Z" fill="white"/>
+          <circle cx="72" cy="28" r="6" fill="#06B6D4"/>
+          <defs>
+            <linearGradient id="brandGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4F46E5"/>
+              <stop offset="1" stop-color="#06B6D4"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="brand-title">NetPará</span>
+      </div>
+
+      <div class="network-pill" id="top-network-pill">
+        <span class="network-dot"></span>
+        <span id="top-network-label">Online</span>
+      </div>
+
+      <div class="top-bar-actions">
+        <button class="icon-btn" onclick="NetParaApp.navigate('notifications')" aria-label="Notifications">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span class="badge-count" id="top-notif-badge" style="display: none;">0</span>
+        </button>
+        <button class="icon-btn" onclick="NetParaApp.navigate('messages')" aria-label="Messages">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Viewport -->
+    <main class="view-viewport">
+
+      <!-- View: Home Feed -->
+      <section class="view-page active" id="view-feed">
+        <div class="feed-header-tabs">
+          <button class="feed-tab active" id="tab-foryou" onclick="NetParaFeed.setTab('foryou')">For You</button>
+          <button class="feed-tab" id="tab-following" onclick="NetParaFeed.setTab('following')">Following</button>
+        </div>
+
+        <!-- Stories Carousel -->
+        <div class="stories-container" id="stories-track"></div>
+
+        <!-- Quick Post Trigger -->
+        <div class="composer-prompt-card" onclick="NetParaPosts.openComposer()">
+          <img class="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Me" style="width: 38px; height: 38px;" />
+          <div class="composer-prompt-input">What's happening in Pará today?</div>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        </div>
+
+        <!-- Posts Feed List -->
+        <div class="posts-feed" id="feed-posts-list"></div>
+      </section>
+
+      <!-- View: Reels (Short Videos) -->
+      <section class="view-page" id="view-reels" style="padding-bottom: 0;">
+        <div class="reels-feed-container" id="reels-feed-container"></div>
+      </section>
+
+      <!-- View: Messages & Chat -->
+      <section class="view-page" id="view-messages">
+        <!-- Conversations List -->
+        <div id="chat-list-view">
+          <div style="padding: 14px 16px; font-weight: 800; font-size: 1.25rem;">Direct Messages</div>
+          <div class="conversations-list" id="conversations-list"></div>
+        </div>
+
+        <!-- 1-on-1 Chat Room (Hidden by default) -->
+        <div id="chat-room-view" class="chat-room-container" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--surface-border);">
+            <button class="icon-btn" onclick="NetParaChat.closeRoom()" style="width: 36px; height: 36px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <img id="chat-room-peer-avatar" src="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
+            <div style="flex: 1;">
+              <div id="chat-room-peer-name" style="font-weight: 700; font-size: 0.95rem;"></div>
+              <div id="chat-room-peer-status" style="font-size: 0.72rem; color: var(--success);">Online</div>
+            </div>
+          </div>
+
+          <div class="chat-messages-area" id="chat-messages-area"></div>
+          <div id="chat-typing-indicator" style="display: none; padding: 6px 16px; font-size: 0.75rem; color: var(--text-muted); font-style: italic;">User is typing...</div>
+
+          <div class="chat-input-bar">
+            <input type="text" id="chat-msg-input" class="chat-text-input" placeholder="Type a message..." onkeydown="if(event.key === 'Enter') NetParaChat.send()" />
+            <button class="icon-btn" onclick="NetParaChat.send()" style="color: var(--primary);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- View: Activity & Notifications -->
+      <section class="view-page" id="view-notifications">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px;">
+          <h2 style="font-size: 1.25rem; font-weight: 800;">Activity</h2>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 6px 10px;" onclick="NetParaNotifications.markAllRead()">Mark all as read</button>
+        </div>
+
+        <div style="display: flex; gap: 8px; padding: 0 16px 12px 16px; overflow-x: auto;">
+          <button class="btn-secondary notif-filter-btn active" id="notif-filter-all" onclick="NetParaNotifications.setFilter('all')">All</button>
+          <button class="btn-secondary notif-filter-btn" id="notif-filter-like" onclick="NetParaNotifications.setFilter('like')">Likes</button>
+          <button class="btn-secondary notif-filter-btn" id="notif-filter-comment" onclick="NetParaNotifications.setFilter('comment')">Comments</button>
+          <button class="btn-secondary notif-filter-btn" id="notif-filter-follow" onclick="NetParaNotifications.setFilter('follow')">Follows</button>
+        </div>
+
+        <div id="notifications-list"></div>
+      </section>
+
+      <!-- View: Profile -->
+      <section class="view-page" id="view-profile">
+        <img class="profile-cover" id="profile-cover-img" src="" alt="Cover" />
+
+        <div class="profile-header-card">
+          <div class="profile-avatar-row">
+            <img class="profile-avatar-large" id="profile-avatar-img" src="" alt="Avatar" />
+            <div class="profile-actions" id="profile-action-buttons"></div>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <h2 id="profile-display-name" style="font-size: 1.25rem; font-weight: 800;"></h2>
+              <span id="profile-verified-badge" class="verified-badge">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              </span>
+            </div>
+            <div id="profile-username" style="font-size: 0.88rem; color: var(--text-muted);"></div>
+          </div>
+
+          <p id="profile-bio" style="margin-top: 10px; font-size: 0.92rem; line-height: 1.4;"></p>
+          <a id="profile-website" href="#" target="_blank" style="margin-top: 6px; font-size: 0.85rem; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"></a>
+
+          <div class="profile-stats-grid">
+            <div>
+              <div class="stat-number" id="profile-stat-posts">0</div>
+              <div class="stat-label">Posts</div>
+            </div>
+            <div>
+              <div class="stat-number" id="profile-stat-followers">0</div>
+              <div class="stat-label">Followers</div>
+            </div>
+            <div>
+              <div class="stat-number" id="profile-stat-following">0</div>
+              <div class="stat-label">Following</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-tabs">
+          <button class="profile-tab-btn active" id="profile-tab-posts" onclick="NetParaProfile.setTab('posts')">Posts</button>
+          <button class="profile-tab-btn" id="profile-tab-media" onclick="NetParaProfile.setTab('media')">Photos</button>
+          <button class="profile-tab-btn" id="profile-tab-saved" onclick="NetParaProfile.setTab('saved')">Saved</button>
+        </div>
+
+        <div id="profile-tab-content"></div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" id="nav-feed" onclick="NetParaApp.navigate('feed')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span class="nav-label">Home</span>
+      </button>
+
+      <button class="nav-item" id="nav-reels" onclick="NetParaApp.navigate('reels')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+        <span class="nav-label">Reels</span>
+      </button>
+
+      <button class="nav-item" onclick="NetParaPosts.openComposer()">
+        <div class="nav-create-pill">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </div>
+      </button>
+
+      <button class="nav-item" id="nav-messages" onclick="NetParaApp.navigate('messages')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span class="nav-label">Chats</span>
+      </button>
+
+      <button class="nav-item" id="nav-profile" onclick="NetParaApp.navigate('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Onboarding Welcome Modal -->
+  <div id="onboarding-overlay" class="onboarding-screen" style="display: none;">
+    <div class="onboarding-slide">
+      <div class="onboarding-icon-card">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+      </div>
+      <h1 class="onboarding-title">Welcome to NetPará</h1>
+      <p class="onboarding-desc">Connect with creators, friends and the vibrant culture of Pará. Share photos, watch high-speed reels, and chat seamlessly.</p>
+    </div>
+    <div style="width: 100%; max-width: 400px; margin: 0 auto;">
+      <div class="onboarding-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      <button class="btn-primary" style="width: 100%;" onclick="NetParaApp.finishOnboarding()">Get Started</button>
+    </div>
+  </div>
+
+  <!-- Auth Screen Modal -->
+  <div id="auth-overlay" class="modal-overlay" style="display: none;">
+    <div class="bottom-sheet-card" style="max-height: 90vh;">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <div style="font-weight: 800; font-size: 1.2rem;">NetPará Account</div>
+      </div>
+      <div class="sheet-body">
+        <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+          <button class="btn-primary" id="btn-auth-tab-login" style="flex: 1;" onclick="toggleAuthTab('login')">Sign In</button>
+          <button class="btn-secondary" id="btn-auth-tab-signup" style="flex: 1;" onclick="toggleAuthTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="form-login">
+          <div class="form-group">
+            <label class="form-label">Email or Username</label>
+            <input type="text" id="login-identifier" class="form-input" placeholder="alex_silva or alex@netpara.social" value="alex_silva" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="login-password" class="form-input" placeholder="••••••••" value="password123" />
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+              <input type="checkbox" id="login-remember" checked /> Remember me
+            </label>
+            <a href="#" onclick="handleForgotPassword()" style="font-size: 0.85rem; color: var(--primary);">Forgot password?</a>
+          </div>
+          <button class="btn-primary" style="width: 100%;" onclick="handleLoginSubmit()">Sign In</button>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div id="form-signup" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="signup-fullname" class="form-input" placeholder="Maria Santos" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="signup-username" class="form-input" placeholder="maria_santos" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="signup-email" class="form-input" placeholder="maria@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="signup-password" class="form-input" placeholder="Minimum 6 characters" />
+          </div>
+          <button class="btn-primary" style="width: 100%;" onclick="handleRegisterSubmit()">Create Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Composer Modal -->
+  <div id="composer-modal" class="modal-overlay">
+    <div class="bottom-sheet-card" style="max-height: 85vh;">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <button class="icon-btn" onclick="NetParaPosts.closeComposer()">✕</button>
+        <span class="sheet-title">Create Post</span>
+        <button class="btn-primary" id="btn-publish-post" onclick="NetParaPosts.publish()" style="padding: 8px 16px; font-size: 0.88rem;">Post</button>
+      </div>
+      <div class="sheet-body">
+        <textarea id="composer-textarea" class="form-input" style="width: 100%; height: 110px; resize: none; border: none;" placeholder="What are you thinking? Share with Pará..."></textarea>
+
+        <div id="composer-upload-progress" style="display: none; font-size: 0.8rem; color: var(--primary); margin: 6px 0;">Compressing and uploading media...</div>
+
+        <!-- Previews container -->
+        <div id="composer-media-previews" style="display: none; gap: 10px; overflow-x: auto; padding: 10px 0;"></div>
+
+        <!-- Quick Hashtags -->
+        <div style="display: flex; gap: 6px; overflow-x: auto; padding: 8px 0;">
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#NetPará')">#NetPará</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Amazonia')">#Amazonia</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Belem')">#Belem</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Culinaria')">#Culinaria</button>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--surface-border); padding-top: 12px; margin-top: 10px;">
+          <div style="display: flex; gap: 10px;">
+            <label class="icon-btn" style="cursor: pointer;" title="Attach Photo/Video">
+              <input type="file" id="composer-file-input" accept="image/*,video/*" multiple style="display: none;" onchange="NetParaPosts.handleFileSelect(event)" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </label>
+            <button class="icon-btn" onclick="NetParaPosts.addEmoji('🌴')">🌴</button>
+            <button class="icon-btn" onclick="NetParaPosts.addEmoji('✨')">✨</button>
+            <button class="icon-btn" onclick="NetParaPosts.addEmoji('🔥')">🔥</button>
+            <button class="icon-btn" onclick="NetParaPosts.addEmoji('❤️')">❤️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comments Bottom Sheet -->
+  <div id="comments-modal" class="modal-overlay">
+    <div class="bottom-sheet-card">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">Comments</span>
+        <button class="icon-btn" onclick="NetParaComments.close()">✕</button>
+      </div>
+      <div class="sheet-body" id="comments-sheet-list"></div>
+      <div class="chat-input-bar">
+        <input type="text" id="comment-input-field" class="chat-text-input" placeholder="Add a comment..." onkeydown="if(event.key === 'Enter') NetParaComments.submit()" />
+        <button class="btn-primary" style="padding: 8px 14px; font-size: 0.85rem;" onclick="NetParaComments.submit()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Options Modal -->
+  <div id="post-options-modal" class="modal-overlay">
+    <div class="bottom-sheet-card" style="max-height: 40vh;">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-body" style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn-secondary" style="text-align: left; padding: 14px;" onclick="NetParaApp.handlePostOption('copy')">📋 Copy Post Link</button>
+        <button class="btn-secondary" style="text-align: left; padding: 14px; color: var(--danger);" onclick="NetParaApp.handlePostOption('report')">⚠️ Report Content</button>
+        <button class="btn-secondary" style="text-align: left; padding: 14px; color: var(--danger);" onclick="NetParaApp.handlePostOption('delete')">🗑️ Delete Post</button>
+        <button class="btn-secondary" style="text-align: center; margin-top: 6px;" onclick="NetParaApp.closePostOptionsMenu()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Content Modal -->
+  <div id="report-modal" class="modal-overlay">
+    <div class="bottom-sheet-card">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">Report Content</span>
+        <button class="icon-btn" onclick="NetParaApp.closeReportModal()">✕</button>
+      </div>
+      <div class="sheet-body">
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">Help us keep NetPará safe. Why are you reporting this?</p>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="report-category-select" class="form-input">
+            <option value="spam">Spam or misleading</option>
+            <option value="hate_speech">Hate speech or harassment</option>
+            <option value="violence">Violence or dangerous content</option>
+            <option value="nudity">Nudity or sexual content</option>
+            <option value="copyright">Intellectual property violation</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Additional Details</label>
+          <textarea id="report-details-input" class="form-input" style="height: 80px;" placeholder="Optional additional context..."></textarea>
+        </div>
+        <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="NetParaApp.submitReport()">Submit Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Profile Modal -->
+  <div id="edit-profile-modal" class="modal-overlay">
+    <div class="bottom-sheet-card">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <button class="icon-btn" onclick="NetParaProfile.closeEditModal()">✕</button>
+        <span class="sheet-title">Edit Profile</span>
+        <button class="btn-primary" style="padding: 6px 14px; font-size: 0.85rem;" onclick="NetParaProfile.saveProfile()">Save</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="edit-fullname-input" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio</label>
+          <textarea id="edit-bio-input" class="form-input" style="height: 80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Website</label>
+          <input type="url" id="edit-website-input" class="form-input" placeholder="https://yourpage.com" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal-overlay">
+    <div class="bottom-sheet-card" style="max-height: 90vh;">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">Settings & Preferences</span>
+        <button class="icon-btn" onclick="NetParaApp.closeSettings()">✕</button>
+      </div>
+      <div class="sheet-body" style="display: flex; flex-direction: column; gap: 14px;">
+
+        <!-- Monetization / Premium Banner -->
+        <div style="background: var(--primary-gradient); border-radius: var(--radius-md); padding: 16px; color: #FFF;">
+          <div style="font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 6px;">
+            <span>⭐ NetPará Gold</span>
+          </div>
+          <p style="font-size: 0.85rem; margin-top: 4px; opacity: 0.95;">Get ad-free browsing, verified badge & priority reels reach.</p>
+          <button class="btn-secondary" style="margin-top: 10px; width: 100%; background: #FFF; color: #0F172A; border: none; font-weight: 700;" onclick="NetParaSettings.openPremiumModal()">Explore Gold Perks</button>
+        </div>
+
+        <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">Preferences</div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+          <span>Dark Mode</span>
+          <input type="checkbox" id="setting-theme-toggle" onchange="NetParaSettings.toggleTheme()" />
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+          <span>Private Profile</span>
+          <input type="checkbox" id="setting-private-toggle" onchange="NetParaSettings.togglePrivateProfile()" />
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+          <span>Language</span>
+          <select class="form-input" style="padding: 6px 12px; width: auto;" onchange="NetParaSettings.setLanguage(this.value)">
+            <option value="pt-BR">Português (Brasil)</option>
+            <option value="en-US">English</option>
+            <option value="es-ES">Español</option>
+          </select>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+          <span>Blocked Accounts</span>
+          <button class="btn-secondary" style="font-size: 0.8rem; padding: 6px 12px;" onclick="NetParaSettings.openBlockedUsersModal()">Manage</button>
+        </div>
+
+        <!-- Admin Row -->
+        <div id="settings-admin-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-top: 1px solid var(--surface-border); padding-top: 12px;">
+          <span style="color: var(--accent-gold); font-weight: 700;">🛡️ Moderation Console</span>
+          <button class="btn-primary" style="font-size: 0.8rem; padding: 6px 12px;" onclick="NetParaAdmin.open()">Open Console</button>
+        </div>
+
+        <button class="btn-secondary" style="color: var(--danger); width: 100%; margin-top: 10px;" onclick="NetParaSettings.logout()">Log Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Ad Reward Modal -->
+  <div id="premium-modal" class="modal-overlay">
+    <div class="bottom-sheet-card">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">NetPará Gold</span>
+        <button class="icon-btn" onclick="NetParaSettings.closePremiumModal()">✕</button>
+      </div>
+      <div class="sheet-body" style="text-align: center;">
+        <div style="font-size: 3rem; margin: 10px 0;">👑</div>
+        <h3 style="font-size: 1.3rem;">Elevate Your Experience</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 8px 0 20px 0;">Enjoy zero advertisements, instant gold verification badge, and boosted content discovery.</p>
+        <button class="btn-primary" style="width: 100%; padding: 14px;" onclick="NetParaSettings.watchRewardedForGold()">
+          🎬 Watch Ad to Unlock Gold 24h
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Moderation Console Modal -->
+  <div id="admin-console-modal" class="modal-overlay">
+    <div class="bottom-sheet-card" style="max-height: 90vh;">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">🛡️ Moderation Console</span>
+        <button class="icon-btn" onclick="NetParaAdmin.close()">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; text-align: center;">
+          <div style="background: var(--surface-hover); padding: 8px; border-radius: 10px;">
+            <div style="font-weight: 800; font-size: 1.1rem;" id="admin-stat-users">0</div>
+            <div style="font-size: 0.68rem; color: var(--text-muted);">Users</div>
+          </div>
+          <div style="background: var(--surface-hover); padding: 8px; border-radius: 10px;">
+            <div style="font-weight: 800; font-size: 1.1rem;" id="admin-stat-posts">0</div>
+            <div style="font-size: 0.68rem; color: var(--text-muted);">Posts</div>
+          </div>
+          <div style="background: var(--surface-hover); padding: 8px; border-radius: 10px;">
+            <div style="font-weight: 800; font-size: 1.1rem; color: var(--danger);" id="admin-stat-reports">0</div>
+            <div style="font-size: 0.68rem; color: var(--text-muted);">Reports</div>
+          </div>
+          <div style="background: var(--surface-hover); padding: 8px; border-radius: 10px;">
+            <div style="font-weight: 800; font-size: 1.1rem;" id="admin-stat-suspended">0</div>
+            <div style="font-size: 0.68rem; color: var(--text-muted);">Banned</div>
+          </div>
+        </div>
+
+        <button class="btn-secondary" style="width: 100%; margin-bottom: 14px;" onclick="NetParaAdmin.broadcastAnnouncement()">📢 Broadcast System Notice</button>
+
+        <h4 style="font-size: 0.95rem; margin-bottom: 8px;">Pending Reports Queue</h4>
+        <div id="admin-reports-queue"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Story Viewer Modal -->
+  <div id="story-viewer-modal" class="modal-overlay" style="background: #000;">
+    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+      <button class="icon-btn" style="position: absolute; top: 16px; right: 16px; color: #FFF; z-index: 10;" onclick="NetParaApp.closeStoryViewer()">✕</button>
+      <div style="position: absolute; top: 20px; left: 16px; color: #FFF; font-weight: 700;" id="story-viewer-author"></div>
+      <img id="story-viewer-img" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div id="image-lightbox-modal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
+    <button class="icon-btn" style="position: absolute; top: 16px; right: 16px; color: #FFF; z-index: 10;" onclick="NetParaApp.closeLightbox()">✕</button>
+    <img id="lightbox-img" style="max-width: 95%; max-height: 90vh; object-fit: contain;" />
+  </div>
+
+  <!-- Script Modules -->
+  <script src="js/backend.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/posts.js"></script>
+  <script src="js/comments.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/reels.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    function toggleAuthTab(tab) {
+      const loginForm = document.getElementById("form-login");
+      const signupForm = document.getElementById("form-signup");
+      const loginBtn = document.getElementById("btn-auth-tab-login");
+      const signupBtn = document.getElementById("btn-auth-tab-signup");
+
+      if (tab === "login") {
+        loginForm.style.display = "block";
+        signupForm.style.display = "none";
+        loginBtn.className = "btn-primary";
+        signupBtn.className = "btn-secondary";
+      } else {
+        loginForm.style.display = "none";
+        signupForm.style.display = "block";
+        loginBtn.className = "btn-secondary";
+        signupBtn.className = "btn-primary";
+      }
+    }
+
+    function handleLoginSubmit() {
+      const id = document.getElementById("login-identifier").value;
+      const pass = document.getElementById("login-password").value;
+      const rem = document.getElementById("login-remember").checked;
+      const res = NetParaAuth.login(id, pass, rem);
+      if (res.success) {
+        NetParaApp.hideAuthScreen();
+      } else {
+        alert(res.message);
+      }
+    }
+
+    function handleRegisterSubmit() {
+      const fullName = document.getElementById("signup-fullname").value;
+      const username = document.getElementById("signup-username").value;
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+
+      const res = NetParaAuth.register({ fullName, username, email, password });
+      if (res.success) {
+        NetParaApp.hideAuthScreen();
+      } else {
+        alert(res.message);
+      }
+    }
+
+    function handleForgotPassword() {
+      const email = prompt("Enter your email address:");
+      if (email) {
+        const res = NetParaAuth.forgotPassword(email);
+        alert(res.message);
+      }
+    }
+  </script>
+</body>
+</html>

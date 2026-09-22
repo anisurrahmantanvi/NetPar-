@@ -1,0 +1,9 @@
+{
+  "apiKey": "AIzaSyYOUR_FIREBASE_API_KEY_HERE",
+  "authDomain": "netpara-social.firebaseapp.com",
+  "projectId": "netpara-social",
+  "storageBucket": "netpara-social.appspot.com",
+  "messagingSenderId": "123456789012",
+  "appId": "1:123456789012:android:abcdef0123456789",
+  "measurementId": "G-NETPARASOCIAL"
+}

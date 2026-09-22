@@ -1,0 +1,65 @@
+/* NetPará Responsive Adaptations (Phones, Foldables, Tablets) */
+
+@media (min-width: 680px) {
+  .top-bar {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    border-left: 1px solid var(--surface-border);
+    border-right: 1px solid var(--surface-border);
+  }
+
+  .view-viewport {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    border-left: 1px solid var(--surface-border);
+    border-right: 1px solid var(--surface-border);
+  }
+
+  .bottom-nav {
+    max-width: 900px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 1px solid var(--surface-border);
+    border-right: 1px solid var(--surface-border);
+  }
+
+  .posts-feed {
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .composer-prompt-card {
+    max-width: 640px;
+    margin: 16px auto;
+    width: 100%;
+  }
+
+  .stories-container {
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .bottom-sheet-card {
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+    max-height: 80vh;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Dual-Pane Tablet layout */
+  .chat-view-container {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    height: 100%;
+  }
+
+  .conversations-sidebar {
+    border-right: 1px solid var(--surface-border);
+    overflow-y: auto;
+  }
+}
