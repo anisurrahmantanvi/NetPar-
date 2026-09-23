@@ -107,8 +107,8 @@ const NetParaFeed = (function () {
               <img class="user-avatar" src="${author.avatarUrl}" alt="${author.fullName}" />
               <div class="author-names">
                 <div class="author-title-row">
-                  <span class="author-fullname">${author.fullName}</span>
-                  ${author.isVerified ? '<span class="verified-badge"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></span>' : ''}
+                  <span class="author-fullname">${author.nickname ? `${author.fullName} (${author.nickname})` : author.fullName}</span>
+                  ${author.isVerified ? '<span class="verified-badge" title="Verified"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#0095F6"/><path d="M8.5 12.5L11 15L16 9.5" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' : ''}
                 </div>
                 <span class="author-meta">@${author.username} • ${timeAgo(post.createdAt)}</span>
               </div>

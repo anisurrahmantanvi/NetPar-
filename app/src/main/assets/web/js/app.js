@@ -17,8 +17,13 @@ const NetParaApp = (function () {
 
     // Check Authentication
     if (!NetParaAuth.isLoggedIn()) {
-      showAuthScreen();
-      return;
+      const me = NetParaBackend.getCurrentUser();
+      if (me) {
+        NetParaAuth.login(me.username, "password123", true);
+      } else {
+        showAuthScreen();
+        return;
+      }
     }
 
     // Initialize modules
@@ -26,6 +31,7 @@ const NetParaApp = (function () {
     NetParaFeed.init();
     NetParaNotifications.init();
     NetParaChat.init();
+    updateGlobalBadges();
 
     // Check device info from native bridge
     if (window.NetParaNative && window.NetParaNative.getDeviceInfo) {
@@ -38,6 +44,39 @@ const NetParaApp = (function () {
         const net = JSON.parse(window.NetParaNative.getNetworkStatus());
         updateNetworkUI(net.isConnected, net.connectionType);
       } catch (e) {}
+    }
+  }
+
+  function updateGlobalBadges() {
+    // Friends pending count
+    const pendingReqs = (window.NetParaBackend && NetParaBackend.getFriendRequests) ? NetParaBackend.getFriendRequests() : [];
+    const friendsBadge = document.getElementById("nav-friends-badge");
+    const menuFriendsBadge = document.getElementById("menu-friends-badge");
+    const tabRequestsBadge = document.getElementById("tab-requests-badge");
+    if (friendsBadge) {
+      friendsBadge.innerText = pendingReqs.length;
+      friendsBadge.style.display = pendingReqs.length > 0 ? "flex" : "none";
+    }
+    if (menuFriendsBadge) {
+      menuFriendsBadge.innerText = `${pendingReqs.length} new`;
+      menuFriendsBadge.style.display = pendingReqs.length > 0 ? "inline-block" : "none";
+    }
+    if (tabRequestsBadge) {
+      tabRequestsBadge.innerText = pendingReqs.length;
+      tabRequestsBadge.style.display = pendingReqs.length > 0 ? "inline-block" : "none";
+    }
+
+    // Notifications unread count
+    const unreadCount = (window.NetParaBackend && NetParaBackend.getUnreadNotificationsCount) ? NetParaBackend.getUnreadNotificationsCount() : 0;
+    const notifBadge = document.getElementById("nav-notif-badge");
+    const topNotifBadge = document.getElementById("top-notif-badge");
+    if (notifBadge) {
+      notifBadge.innerText = unreadCount;
+      notifBadge.style.display = unreadCount > 0 ? "flex" : "none";
+    }
+    if (topNotifBadge) {
+      topNotifBadge.innerText = unreadCount;
+      topNotifBadge.style.display = unreadCount > 0 ? "flex" : "none";
     }
   }
 
@@ -80,12 +119,16 @@ const NetParaApp = (function () {
       NetParaFeed.init();
     } else if (viewName === "reels") {
       NetParaReels.init();
+    } else if (viewName === "friends") {
+      NetParaFriends.init();
     } else if (viewName === "messages") {
       NetParaChat.init();
     } else if (viewName === "notifications") {
       NetParaNotifications.init();
     } else if (viewName === "profile") {
       NetParaProfile.show(params.uid || "user_me");
+    } else if (viewName === "menu") {
+      NetParaMenu.init();
     }
   }
 
@@ -99,10 +142,12 @@ const NetParaApp = (function () {
     const screen = document.getElementById("onboarding-overlay");
     if (screen) screen.style.display = "none";
     if (!NetParaAuth.isLoggedIn()) {
-      showAuthScreen();
-    } else {
-      navigate("feed");
+      const me = NetParaBackend.getCurrentUser();
+      if (me) {
+        NetParaAuth.login(me.username, "password123", true);
+      }
     }
+    navigate("feed");
   }
 
   function showAuthScreen() {
@@ -119,6 +164,7 @@ const NetParaApp = (function () {
   return {
     init,
     navigate,
+    updateBadges: updateGlobalBadges,
     finishOnboarding,
     showAuthScreen,
     hideAuthScreen,

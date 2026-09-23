@@ -35,9 +35,8 @@
       </div>
 
       <div class="top-bar-actions">
-        <button class="icon-btn" onclick="NetParaApp.navigate('notifications')" aria-label="Notifications">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          <span class="badge-count" id="top-notif-badge" style="display: none;">0</span>
+        <button class="icon-btn" onclick="NetParaPosts.openComposer()" aria-label="Create Post" style="color: var(--primary);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
         <button class="icon-btn" onclick="NetParaApp.navigate('messages')" aria-label="Messages">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
@@ -60,8 +59,8 @@
 
         <!-- Quick Post Trigger -->
         <div class="composer-prompt-card" onclick="NetParaPosts.openComposer()">
-          <img class="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Me" style="width: 38px; height: 38px;" />
-          <div class="composer-prompt-input">What's happening in Pará today?</div>
+          <img class="user-avatar" id="home-composer-avatar" src="img/avatar_anisur_tanvi.jpg" alt="Me" style="width: 38px; height: 38px; object-fit: cover;" />
+          <div class="composer-prompt-input">What's on your mind today?</div>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
         </div>
 
@@ -72,6 +71,24 @@
       <!-- View: Reels (Short Videos) -->
       <section class="view-page" id="view-reels" style="padding-bottom: 0;">
         <div class="reels-feed-container" id="reels-feed-container"></div>
+      </section>
+
+      <!-- View: Friend Requests & Friends Feed -->
+      <section class="view-page" id="view-friends">
+        <div class="friends-header">
+          <div class="friends-tabs-bar">
+            <button class="friends-tab-pill active" id="tab-friends-requests" onclick="NetParaFriends.setTab('requests')">
+              Requests <span class="tab-badge" id="tab-requests-badge" style="display: none;">0</span>
+            </button>
+            <button class="friends-tab-pill" id="tab-friends-suggestions" onclick="NetParaFriends.setTab('suggestions')">
+              Suggestions
+            </button>
+            <button class="friends-tab-pill" id="tab-friends-all" onclick="NetParaFriends.setTab('all')">
+              Your Friends
+            </button>
+          </div>
+        </div>
+        <div id="friends-feed-content" class="friends-feed-content"></div>
       </section>
 
       <!-- View: Messages & Chat -->
@@ -137,8 +154,11 @@
           <div style="margin-top: 12px;">
             <div style="display: flex; align-items: center; gap: 6px;">
               <h2 id="profile-display-name" style="font-size: 1.25rem; font-weight: 800;"></h2>
-              <span id="profile-verified-badge" class="verified-badge">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span id="profile-verified-badge" class="verified-badge" title="Verified Account">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" fill="#0095F6"/>
+                  <path d="M8.5 12.5L11 15L16 9.5" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </span>
             </div>
             <div id="profile-username" style="font-size: 0.88rem; color: var(--text-muted);"></div>
@@ -147,10 +167,14 @@
           <p id="profile-bio" style="margin-top: 10px; font-size: 0.92rem; line-height: 1.4;"></p>
           <a id="profile-website" href="#" target="_blank" style="margin-top: 6px; font-size: 0.85rem; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"></a>
 
-          <div class="profile-stats-grid">
+          <div class="profile-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
             <div>
               <div class="stat-number" id="profile-stat-posts">0</div>
               <div class="stat-label">Posts</div>
+            </div>
+            <div onclick="NetParaApp.navigate('friends')" style="cursor: pointer;">
+              <div class="stat-number" id="profile-stat-friends">0</div>
+              <div class="stat-label">Friends</div>
             </div>
             <div>
               <div class="stat-number" id="profile-stat-followers">0</div>
@@ -165,16 +189,231 @@
 
         <div class="profile-tabs">
           <button class="profile-tab-btn active" id="profile-tab-posts" onclick="NetParaProfile.setTab('posts')">Posts</button>
+          <button class="profile-tab-btn" id="profile-tab-reels" onclick="NetParaProfile.setTab('reels')">Reels</button>
           <button class="profile-tab-btn" id="profile-tab-media" onclick="NetParaProfile.setTab('media')">Photos</button>
+          <button class="profile-tab-btn" id="profile-tab-about" onclick="NetParaProfile.setTab('about')">About</button>
           <button class="profile-tab-btn" id="profile-tab-saved" onclick="NetParaProfile.setTab('saved')">Saved</button>
         </div>
 
         <div id="profile-tab-content"></div>
       </section>
 
+      <!-- View: Menu (Settings, Help & Support, Hub) -->
+      <section class="view-page" id="view-menu">
+        <div class="menu-container">
+          <div class="menu-title-header">
+            <h2>Menu</h2>
+          </div>
+
+          <!-- User Profile Card -->
+          <div class="menu-user-card" onclick="NetParaApp.navigate('profile')">
+            <img id="menu-user-avatar" class="menu-avatar" src="" alt="User avatar" />
+            <div class="menu-user-info">
+              <div class="menu-user-name-row">
+                <span id="menu-user-name" class="menu-fullname">User</span>
+                <span id="menu-user-verified" class="verified-badge" style="display: none;" title="Verified Account">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#0095F6"/><path d="M8.5 12.5L11 15L16 9.5" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span id="menu-user-vip" class="gold-badge" style="display: none;">👑 VIP</span>
+              </div>
+              <span id="menu-user-handle" class="menu-handle">@user</span>
+              <span class="menu-view-profile-hint">View your profile →</span>
+            </div>
+          </div>
+
+          <!-- Shortcuts Grid -->
+          <div class="menu-section-header">Shortcuts</div>
+          <div class="menu-shortcuts-grid">
+            <div class="menu-shortcut-card" onclick="NetParaApp.navigate('friends')">
+              <div class="shortcut-icon" style="background: rgba(79, 70, 229, 0.12); color: var(--primary);">👥</div>
+              <div class="shortcut-title">Friends</div>
+              <div class="shortcut-desc">Requests & Network</div>
+              <span class="menu-badge" id="menu-friends-badge" style="display: none;">0 new</span>
+            </div>
+            <div class="menu-shortcut-card" onclick="NetParaApp.navigate('reels')">
+              <div class="shortcut-icon" style="background: rgba(236, 72, 153, 0.12); color: #ec4899;">🎬</div>
+              <div class="shortcut-title">Reels</div>
+              <div class="shortcut-desc">Watch short videos</div>
+            </div>
+            <div class="menu-shortcut-card" onclick="NetParaApp.navigate('messages')">
+              <div class="shortcut-icon" style="background: rgba(16, 185, 129, 0.12); color: var(--success);">💬</div>
+              <div class="shortcut-title">Messages</div>
+              <div class="shortcut-desc">Direct chats</div>
+            </div>
+            <div class="menu-shortcut-card" onclick="NetParaProfile.show('user_me'); NetParaProfile.setTab('saved'); NetParaApp.navigate('profile');">
+              <div class="shortcut-icon" style="background: rgba(245, 158, 11, 0.12); color: var(--warning);">💾</div>
+              <div class="shortcut-title">Saved</div>
+              <div class="shortcut-desc">Bookmarked posts</div>
+            </div>
+            <div class="menu-shortcut-card" onclick="NetParaSettings.openPremiumModal()">
+              <div class="shortcut-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">👑</div>
+              <div class="shortcut-title">NetPará Gold</div>
+              <div class="shortcut-desc">VIP Status & Ad-Free</div>
+            </div>
+            <div class="menu-shortcut-card" id="menu-shortcut-admin" style="display: none;" onclick="NetParaAdmin.open()">
+              <div class="shortcut-icon" style="background: rgba(239, 68, 68, 0.12); color: var(--danger);">🛡️</div>
+              <div class="shortcut-title">Admin Console</div>
+              <div class="shortcut-desc">Moderation hub</div>
+            </div>
+          </div>
+
+          <!-- Settings & Preferences Section -->
+          <div class="menu-section-header">⚙️ Settings & Preferences</div>
+          <div class="menu-group-card">
+            <div class="menu-item-row" onclick="NetParaMenu.toggleTheme()">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">🌙</span>
+                <div>
+                  <div class="menu-item-label">Dark Mode</div>
+                  <div class="menu-item-sub">Switch between light & dark aesthetics</div>
+                </div>
+              </div>
+              <label class="switch" onclick="event.stopPropagation()">
+                <input type="checkbox" id="menu-theme-checkbox" onchange="NetParaMenu.toggleTheme()" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="menu-item-row" onclick="NetParaMenu.togglePrivacy()">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">🔒</span>
+                <div>
+                  <div class="menu-item-label">Private Account</div>
+                  <div class="menu-item-sub">Only confirmed friends see your updates</div>
+                </div>
+              </div>
+              <label class="switch" onclick="event.stopPropagation()">
+                <input type="checkbox" id="menu-privacy-checkbox" onchange="NetParaMenu.togglePrivacy()" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="menu-item-row">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">🌐</span>
+                <div>
+                  <div class="menu-item-label">Language</div>
+                  <div class="menu-item-sub">Choose app display language</div>
+                </div>
+              </div>
+              <select class="menu-select" onchange="NetParaSettings.setLanguage(this.value)">
+                <option value="bn">বাংলা (Bengali)</option>
+                <option value="en" selected>English</option>
+                <option value="pt">Português (Brasil)</option>
+              </select>
+            </div>
+
+            <div class="menu-item-row" onclick="NetParaProfile.openEditModal()">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">✏️</span>
+                <div>
+                  <div class="menu-item-label">Edit Profile Details</div>
+                  <div class="menu-item-sub">Update name, bio, city, links</div>
+                </div>
+              </div>
+              <span class="menu-chevron">›</span>
+            </div>
+          </div>
+
+          <!-- Help & Support Section -->
+          <div class="menu-section-header">❓ Help & Support</div>
+          <div class="menu-group-card">
+            <div class="menu-item-row" onclick="NetParaMenu.toggleAccordion('menu-faqs-box')">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">📖</span>
+                <div>
+                  <div class="menu-item-label">Help Center & FAQs</div>
+                  <div class="menu-item-sub">Learn how to make the most of NetPará</div>
+                </div>
+              </div>
+              <span class="menu-chevron">›</span>
+            </div>
+
+            <div id="menu-faqs-box" class="menu-accordion-content" style="display: none;">
+              <div class="faq-item">
+                <div class="faq-q" onclick="NetParaMenu.showFaqAnswer(1)">
+                  <span>How do friend requests work?</span>
+                  <span id="faq-icon-1">▼</span>
+                </div>
+                <div class="faq-a" id="faq-ans-1" style="display: none;">
+                  Tap on the Friends tab in the bottom bar to review incoming requests. Tap "Confirm" to become mutual friends or "Delete" to decline.
+                </div>
+              </div>
+
+              <div class="faq-item">
+                <div class="faq-q" onclick="NetParaMenu.showFaqAnswer(2)">
+                  <span>How do I unlock NetPará Gold / VIP?</span>
+                  <span id="faq-icon-2">▼</span>
+                </div>
+                <div class="faq-a" id="faq-ans-2" style="display: none;">
+                  Tap on "NetPará Gold" in the shortcuts menu and watch a short rewarded video ad to unlock 24 hours of VIP verification and ad-free experience.
+                </div>
+              </div>
+
+              <div class="faq-item">
+                <div class="faq-q" onclick="NetParaMenu.showFaqAnswer(3)">
+                  <span>How do I upload a Reel or Post?</span>
+                  <span id="faq-icon-3">▼</span>
+                </div>
+                <div class="faq-a" id="faq-ans-3" style="display: none;">
+                  Tap the (+) button on the top right bar or the "What's happening?" card on the Home Feed. You can write text, attach images or video URLs.
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-item-row" onclick="NetParaMenu.openReportModal()">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">⚠️</span>
+                <div>
+                  <div class="menu-item-label">Report a Problem</div>
+                  <div class="menu-item-sub">Submit bugs, feedback, or report abuse</div>
+                </div>
+              </div>
+              <span class="menu-chevron">›</span>
+            </div>
+
+            <div class="menu-item-row" onclick="alert('NetPará Community Standards:\n• Treat all members with respect.\n• No hate speech, harassment, or spam.\n• Celebrate local creativity and authentic culture.')">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">📜</span>
+                <div>
+                  <div class="menu-item-label">Community Standards</div>
+                  <div class="menu-item-sub">Rules for a safe & friendly network</div>
+                </div>
+              </div>
+              <span class="menu-chevron">›</span>
+            </div>
+
+            <div class="menu-item-row" onclick="alert('Privacy Policy:\nNetPará respects your personal data. We do not sell your personal information. Content you share publicly can be viewed by other NetPará users.')">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">🛡️</span>
+                <div>
+                  <div class="menu-item-label">Privacy Policy & Terms</div>
+                  <div class="menu-item-sub">How we protect your rights</div>
+                </div>
+              </div>
+              <span class="menu-chevron">›</span>
+            </div>
+          </div>
+
+          <!-- App Version & Info -->
+          <div class="menu-app-info">
+            <div>NetPará Android • v1.0.0 (Build 36)</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Made with ❤️ for Pará & the Amazon</div>
+          </div>
+
+          <!-- Logout Button -->
+          <div style="padding: 16px 0 32px 0;">
+            <button class="btn-logout" onclick="NetParaMenu.confirmLogout()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              Log Out
+            </button>
+          </div>
+        </div>
+      </section>
+
     </main>
 
-    <!-- Bottom Navigation Bar -->
+    <!-- Bottom Navigation Bar (6 Core Tabs) -->
     <nav class="bottom-nav">
       <button class="nav-item active" id="nav-feed" onclick="NetParaApp.navigate('feed')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -186,20 +425,26 @@
         <span class="nav-label">Reels</span>
       </button>
 
-      <button class="nav-item" onclick="NetParaPosts.openComposer()">
-        <div class="nav-create-pill">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </div>
+      <button class="nav-item" id="nav-friends" onclick="NetParaApp.navigate('friends')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span class="nav-label">Friends</span>
+        <span class="badge-count" id="nav-friends-badge" style="display: none;">0</span>
       </button>
 
-      <button class="nav-item" id="nav-messages" onclick="NetParaApp.navigate('messages')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-        <span class="nav-label">Chats</span>
+      <button class="nav-item" id="nav-notifications" onclick="NetParaApp.navigate('notifications')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="nav-label">Alerts</span>
+        <span class="badge-count" id="nav-notif-badge" style="display: none;">0</span>
       </button>
 
       <button class="nav-item" id="nav-profile" onclick="NetParaApp.navigate('profile')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         <span class="nav-label">Profile</span>
+      </button>
+
+      <button class="nav-item" id="nav-menu" onclick="NetParaApp.navigate('menu')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <span class="nav-label">Menu</span>
       </button>
     </nav>
   </div>
@@ -240,7 +485,7 @@
         <div id="form-login">
           <div class="form-group">
             <label class="form-label">Email or Username</label>
-            <input type="text" id="login-identifier" class="form-input" placeholder="alex_silva or alex@netpara.social" value="alex_silva" />
+            <input type="text" id="login-identifier" class="form-input" placeholder="anisur_tanvi or anisurrahmantanvi@gmail.com" value="anisur_tanvi" />
           </div>
           <div class="form-group">
             <label class="form-label">Password</label>
@@ -530,6 +775,33 @@
     <img id="lightbox-img" style="max-width: 95%; max-height: 90vh; object-fit: contain;" />
   </div>
 
+  <!-- Report a Problem Modal -->
+  <div id="menu-report-modal" class="modal-overlay">
+    <div class="bottom-sheet-card">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header">
+        <div style="font-weight: 800; font-size: 1.15rem;">Report a Problem</div>
+        <button class="icon-btn" onclick="NetParaMenu.closeReportModal()">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="report-problem-category" class="form-input">
+            <option value="bug">Something isn't working (Bug)</option>
+            <option value="abuse">Spam, harassment or abuse</option>
+            <option value="account">Account or login issue</option>
+            <option value="suggestion">Feature suggestion</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Briefly explain what happened</label>
+          <textarea id="report-problem-text" class="form-input" rows="4" placeholder="Include details so we can fix it quickly..."></textarea>
+        </div>
+        <button class="btn-primary" style="width: 100%;" onclick="NetParaMenu.submitReportProblem()">Submit Report</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Script Modules -->
   <script src="js/backend.js"></script>
   <script src="js/auth.js"></script>
@@ -537,10 +809,12 @@
   <script src="js/posts.js"></script>
   <script src="js/comments.js"></script>
   <script src="js/profile.js"></script>
+  <script src="js/friends.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/reels.js"></script>
   <script src="js/notifications.js"></script>
   <script src="js/settings.js"></script>
+  <script src="js/menu.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/app.js"></script>
 

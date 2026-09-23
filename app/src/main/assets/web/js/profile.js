@@ -22,7 +22,7 @@ const NetParaProfile = (function () {
     if (avatarEl) avatarEl.src = user.avatarUrl;
 
     // Names & Meta
-    document.getElementById("profile-display-name").innerText = user.fullName;
+    document.getElementById("profile-display-name").innerText = user.nickname ? `${user.fullName} (${user.nickname})` : user.fullName;
     document.getElementById("profile-username").innerText = "@" + user.username;
     document.getElementById("profile-bio").innerText = user.bio || "No bio yet.";
 
@@ -42,9 +42,14 @@ const NetParaProfile = (function () {
     if (badgeEl) badgeEl.style.display = user.isVerified ? "inline-flex" : "none";
 
     // Stats
-    document.getElementById("profile-stat-posts").innerText = user.postsCount || 0;
-    document.getElementById("profile-stat-followers").innerText = user.followersCount || 0;
-    document.getElementById("profile-stat-following").innerText = user.followingCount || 0;
+    const postsStat = document.getElementById("profile-stat-posts");
+    const friendsStat = document.getElementById("profile-stat-friends");
+    const followersStat = document.getElementById("profile-stat-followers");
+    const followingStat = document.getElementById("profile-stat-following");
+    if (postsStat) postsStat.innerText = user.postsCount || 0;
+    if (friendsStat) friendsStat.innerText = user.friendsCount || (user.friendsList ? user.friendsList.length : 0);
+    if (followersStat) followersStat.innerText = user.followersCount || 0;
+    if (followingStat) followingStat.innerText = user.followingCount || 0;
 
     // Action buttons
     const actionContainer = document.getElementById("profile-action-buttons");
@@ -52,13 +57,23 @@ const NetParaProfile = (function () {
       if (isOwn) {
         actionContainer.innerHTML = `
           <button class="btn-secondary" onclick="NetParaProfile.openEditModal()">Edit Profile</button>
-          <button class="btn-secondary" onclick="NetParaApp.openSettings()">Settings</button>
+          <button class="btn-secondary" onclick="NetParaApp.navigate('menu')">Menu</button>
         `;
       } else {
+        const isFriend = NetParaBackend.isFriend(user.uid);
+        const hasRequested = NetParaBackend.hasPendingRequest(user.uid);
+
+        let friendBtnHtml = "";
+        if (isFriend) {
+          friendBtnHtml = `<button class="btn-secondary" onclick="NetParaFriends.showFriendMenu('${user.uid}', '${user.fullName}')">Friends ✓</button>`;
+        } else if (hasRequested) {
+          friendBtnHtml = `<button class="btn-secondary" onclick="NetParaFriends.cancelRequest('${user.uid}')">Requested</button>`;
+        } else {
+          friendBtnHtml = `<button class="btn-primary" onclick="NetParaFriends.addFriend('${user.uid}')">+ Add Friend</button>`;
+        }
+
         actionContainer.innerHTML = `
-          <button class="${isFollowing ? 'btn-secondary' : 'btn-primary'}" onclick="NetParaProfile.toggleFollow('${user.uid}')">
-            ${isFollowing ? 'Following' : 'Follow'}
-          </button>
+          ${friendBtnHtml}
           <button class="btn-secondary" onclick="NetParaChat.openDirectChat('${user.uid}')">Message</button>
         `;
       }
@@ -107,6 +122,39 @@ const NetParaProfile = (function () {
           ${mediaPosts.flatMap(p => p.mediaUrls).map(url => `
             <img class="media-grid-item" src="${url}" onclick="NetParaApp.viewImage('${url}')" loading="lazy" />
           `).join("")}
+        </div>
+      `;
+    } else if (activeTab === "reels") {
+      const db = NetParaBackend.getDb();
+      const userReels = (db.reels || []).filter(r => r.authorId === viewingUserId);
+      if (userReels.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No reels uploaded yet.</div>';
+        return;
+      }
+      container.innerHTML = `
+        <div class="media-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 8px;">
+          ${userReels.map(r => `
+            <div style="position: relative; aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; background: #000; cursor: pointer;" onclick="NetParaApp.navigate('reels')">
+              <video src="${r.videoUrl}" style="width: 100%; height: 100%; object-fit: cover;" muted playsinline></video>
+              <div style="position: absolute; bottom: 8px; left: 8px; color: #fff; font-size: 0.75rem; text-shadow: 0 1px 3px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 4px;">
+                ▶ <span>${r.likesCount}</span>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    } else if (activeTab === "about") {
+      const user = NetParaBackend.getUser(viewingUserId);
+      container.innerHTML = `
+        <div class="about-card" style="padding: 16px; background: var(--surface); border-radius: var(--radius-sm); margin: 12px 0;">
+          <h4 style="margin-bottom: 12px; font-size: 1rem;">Profile Overview</h4>
+          <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem;">
+            <div>🏢 <strong>Work:</strong> ${user?.work || "Creator & Innovator"}</div>
+            <div>📍 <strong>Current City:</strong> ${user?.city || "Belém, Pará"}</div>
+            <div>🏡 <strong>Hometown:</strong> ${user?.hometown || "Pará, Brazil"}</div>
+            ${user?.website ? `<div>🔗 <strong>Website:</strong> <a href="${user.website}" target="_blank" style="color: var(--primary);">${user.website}</a></div>` : ''}
+            <div>📅 <strong>Joined:</strong> ${new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</div>
+          </div>
         </div>
       `;
     } else if (activeTab === "saved") {

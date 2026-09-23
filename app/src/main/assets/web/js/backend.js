@@ -4,25 +4,31 @@
  */
 
 const NetParaBackend = (function () {
-  const DB_KEY = "netpara_production_db_v1";
+  const DB_KEY = "netpara_production_db_v2";
 
   // Default seed database with rich, realistic content
   const defaultDatabase = {
     users: [
       {
         uid: "user_me",
-        username: "alex_silva",
-        fullName: "Alex Silva",
-        email: "alex@netpara.social",
-        bio: "Explorer & Photographer from Belém, Pará 📸 Building the future of Amazonian tech! 🌴✨",
-        website: "https://netpara.social/alex",
-        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+        username: "anisur_tanvi",
+        fullName: "Anisur Rahman",
+        nickname: "Tanvi",
+        email: "anisurrahmantanvi@gmail.com",
+        bio: "Tech enthusiast & digital creator 🚀 Welcome to my verified NetPará profile! ✨🇧🇩",
+        website: "https://netpara.social/tanvi",
+        avatarUrl: "img/avatar_anisur_tanvi.jpg",
         coverUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
         isVerified: true,
         isPremium: true,
-        followersCount: 1420,
+        followersCount: 4850,
         followingCount: 382,
         postsCount: 18,
+        friendsCount: 152,
+        friendsList: ["user_mariana", "user_tiago", "user_beatriz"],
+        city: "Dhaka",
+        hometown: "Dhaka, Bangladesh",
+        work: "Software Engineer & Creator",
         role: "admin", // Allows testing admin moderation!
         isPrivate: false,
         blockedUsers: [],
@@ -42,6 +48,9 @@ const NetParaBackend = (function () {
         isPremium: false,
         followersCount: 8930,
         followingCount: 410,
+        friendsCount: 156,
+        friendsList: ["user_me", "user_tiago"],
+        city: "Belém, Pará",
         postsCount: 54,
         role: "user",
         isPrivate: false,
@@ -62,12 +71,156 @@ const NetParaBackend = (function () {
         isPremium: false,
         followersCount: 3100,
         followingCount: 220,
+        friendsCount: 94,
+        friendsList: ["user_me", "user_mariana"],
+        city: "Castanhal, Pará",
         postsCount: 32,
         role: "user",
         isPrivate: false,
         blockedUsers: [],
         savedPostIds: [],
         createdAt: Date.now() - 86400000 * 15
+      },
+      {
+        uid: "user_camila",
+        username: "camila_dance",
+        fullName: "Camila Santos",
+        email: "camila@netpara.social",
+        bio: "Carimbó & Brega dancer 💃 Sharing Pará rhythms with the world! ✨",
+        website: "https://instagram.com/camila_dance",
+        avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+        coverUrl: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80",
+        isVerified: true,
+        isPremium: true,
+        followersCount: 15400,
+        followingCount: 512,
+        friendsCount: 310,
+        friendsList: ["user_mariana"],
+        city: "Belém, Pará",
+        postsCount: 42,
+        role: "user",
+        isPrivate: false,
+        blockedUsers: [],
+        savedPostIds: [],
+        createdAt: Date.now() - 86400000 * 60
+      },
+      {
+        uid: "user_lucas",
+        username: "lucas_amazon",
+        fullName: "Lucas Oliveira",
+        email: "lucas@ecotour.br",
+        bio: "Eco-guide in Alter do Chão & Tapajós 🌴 River explorer & wildlife preservation.",
+        website: "https://tapajosguide.com",
+        avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        coverUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+        isVerified: false,
+        isPremium: false,
+        followersCount: 4200,
+        followingCount: 380,
+        friendsCount: 180,
+        friendsList: ["user_tiago"],
+        city: "Santarém, Pará",
+        postsCount: 29,
+        role: "user",
+        isPrivate: false,
+        blockedUsers: [],
+        savedPostIds: [],
+        createdAt: Date.now() - 86400000 * 40
+      },
+      {
+        uid: "user_beatriz",
+        username: "beatriz_marajo",
+        fullName: "Beatriz Lima",
+        email: "beatriz@art.br",
+        bio: "Ceramics & Visual Artist inspired by Marajoara ancestral patterns 🏺🎨",
+        website: "https://arteparamarajo.com",
+        avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+        coverUrl: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1200&q=80",
+        isVerified: true,
+        isPremium: false,
+        followersCount: 7800,
+        followingCount: 290,
+        friendsCount: 215,
+        friendsList: ["user_me"],
+        city: "Soure, Ilha do Marajó",
+        postsCount: 36,
+        role: "user",
+        isPrivate: false,
+        blockedUsers: [],
+        savedPostIds: [],
+        createdAt: Date.now() - 86400000 * 25
+      },
+      {
+        uid: "user_rodrigo",
+        username: "rodrigo_farias",
+        fullName: "Rodrigo Farias",
+        email: "rodrigo@startup.pa",
+        bio: "Product Designer & Community Builder 📱 Innovating from the heart of the Amazon.",
+        website: "https://rodrigodesign.pa",
+        avatarUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80",
+        coverUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
+        isVerified: false,
+        isPremium: false,
+        followersCount: 2100,
+        followingCount: 190,
+        friendsCount: 140,
+        friendsList: ["user_tiago", "user_mariana"],
+        city: "Belém, Pará",
+        postsCount: 19,
+        role: "user",
+        isPrivate: false,
+        blockedUsers: [],
+        savedPostIds: [],
+        createdAt: Date.now() - 86400000 * 18
+      },
+      {
+        uid: "user_gabriel",
+        username: "gabriel_rocha",
+        fullName: "Gabriel Rocha",
+        email: "gabriel@music.pa",
+        bio: "Guitarist & Composer 🎸 Blending Amazonian Guitarrada with modern indie rock.",
+        website: "https://gabrielrocha.com",
+        avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80",
+        coverUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
+        isVerified: false,
+        isPremium: false,
+        followersCount: 3600,
+        followingCount: 420,
+        friendsCount: 260,
+        friendsList: [],
+        city: "Ananindeua, Pará",
+        postsCount: 27,
+        role: "user",
+        isPrivate: false,
+        blockedUsers: [],
+        savedPostIds: [],
+        createdAt: Date.now() - 86400000 * 20
+      }
+    ],
+    friendRequests: [
+      {
+        id: "req_1",
+        fromUid: "user_camila",
+        toUid: "user_me",
+        mutualFriends: 12,
+        timestamp: Date.now() - 3600000 * 2,
+        status: "pending"
+      },
+      {
+        id: "req_2",
+        fromUid: "user_lucas",
+        toUid: "user_me",
+        mutualFriends: 8,
+        timestamp: Date.now() - 3600000 * 6,
+        status: "pending"
+      },
+      {
+        id: "req_3",
+        fromUid: "user_rodrigo",
+        toUid: "user_me",
+        mutualFriends: 15,
+        timestamp: Date.now() - 86400000,
+        status: "pending"
       }
     ],
     stories: [
@@ -75,8 +228,8 @@ const NetParaBackend = (function () {
         id: "story_1",
         authorId: "user_me",
         authorName: "Your Story",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-        mediaUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        avatar: "img/avatar_anisur_tanvi.jpg",
+        mediaUrl: "img/avatar_anisur_tanvi.jpg",
         isOwn: true
       },
       {
@@ -117,7 +270,7 @@ const NetParaBackend = (function () {
       {
         id: "post_2",
         authorId: "user_tiago",
-        content: "Excited to unveil our newest open-source toolkit optimized for high-performance mobile apps across Brazil and Latin America! 🚀 Speed, resilience in low connectivity, and smooth animations. What tech stack are you rocking in 2026? #TechBrazil #CodingLife #MobileDev @alex_silva",
+        content: "Excited to unveil our newest open-source toolkit optimized for high-performance mobile apps across Brazil and Latin America! 🚀 Speed, resilience in low connectivity, and smooth animations. What tech stack are you rocking in 2026? #TechBrazil #CodingLife #MobileDev @anisur_tanvi",
         mediaUrls: [
           "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1000&q=80"
         ],
@@ -133,7 +286,7 @@ const NetParaBackend = (function () {
       {
         id: "post_3",
         authorId: "user_me",
-        content: "Exploring Ilha do Combu! Pure rainforest vibes, handmade chocolate, and peace of mind. Highly recommend taking the boat tour on weekends. 🌿🛶 #Nature #NetPará #TravelPará",
+        content: "Building and testing the new NetPará experience! Fast feeds, smooth reels, and verified creator perks. Loving the sleek design and dark mode. What do you all think? 🚀✨ #NetPará #Tech #Creator #Verified",
         mediaUrls: [
           "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1000&q=80"
         ],
@@ -196,7 +349,7 @@ const NetParaBackend = (function () {
         id: "comm_3",
         postId: "post_1",
         authorId: "user_mariana",
-        text: "@alex_silva Best combination in the world! 🙌",
+        text: "@anisur_tanvi Best combination in the world! 🙌",
         likesCount: 9,
         isLiked: false,
         parentId: "comm_2",
@@ -300,14 +453,31 @@ const NetParaBackend = (function () {
   };
 
   function loadDb() {
+    let currentData = null;
     try {
       const stored = localStorage.getItem(DB_KEY);
-      if (stored) return JSON.parse(stored);
+      if (stored) currentData = JSON.parse(stored);
     } catch (e) {
       console.warn("Error loading stored db, using defaults", e);
     }
-    saveDb(defaultDatabase);
-    return JSON.parse(JSON.stringify(defaultDatabase));
+    if (!currentData) {
+      currentData = JSON.parse(JSON.stringify(defaultDatabase));
+      saveDb(currentData);
+      return currentData;
+    }
+    // Guarantee user_me is updated to Anisur Rahman (Tanvi)
+    const me = currentData.users.find(u => u.uid === "user_me");
+    if (me) {
+      me.fullName = "Anisur Rahman";
+      me.nickname = "Tanvi";
+      me.username = "anisur_tanvi";
+      me.email = "anisurrahmantanvi@gmail.com";
+      me.avatarUrl = "img/avatar_anisur_tanvi.jpg";
+      me.isVerified = true;
+      me.isPremium = true;
+      saveDb(currentData);
+    }
+    return currentData;
   }
 
   function saveDb(data) {
@@ -523,6 +693,162 @@ const NetParaBackend = (function () {
       } else if (action === "suspend_user") {
         const u = db.users.find(usr => usr.uid === rep.targetAuthorId);
         if (u) u.isSuspended = true;
+      }
+      saveDb(db);
+      return true;
+    },
+
+    // Friends & Friend Requests Management
+    getFriendRequests: () => {
+      if (!db.friendRequests) db.friendRequests = [];
+      return db.friendRequests
+        .filter(r => r.toUid === "user_me" && r.status === "pending")
+        .map(r => ({
+          ...r,
+          user: db.users.find(u => u.uid === r.fromUid)
+        }))
+        .filter(r => r.user != null);
+    },
+
+    getPendingRequestsCount: () => {
+      if (!db.friendRequests) return 0;
+      return db.friendRequests.filter(r => r.toUid === "user_me" && r.status === "pending").length;
+    },
+
+    acceptFriendRequest: (reqId) => {
+      if (!db.friendRequests) db.friendRequests = [];
+      const req = db.friendRequests.find(r => r.id === reqId);
+      if (!req) return null;
+      req.status = "accepted";
+
+      const me = db.users.find(u => u.uid === "user_me");
+      const sender = db.users.find(u => u.uid === req.fromUid);
+
+      if (me) {
+        if (!me.friendsList) me.friendsList = [];
+        if (!me.friendsList.includes(req.fromUid)) {
+          me.friendsList.push(req.fromUid);
+          me.friendsCount = (me.friendsCount || 0) + 1;
+        }
+      }
+
+      if (sender) {
+        if (!sender.friendsList) sender.friendsList = [];
+        if (!sender.friendsList.includes("user_me")) {
+          sender.friendsList.push("user_me");
+          sender.friendsCount = (sender.friendsCount || 0) + 1;
+        }
+      }
+
+      // Add a notification for acceptance
+      if (sender) {
+        db.notifications.unshift({
+          id: "notif_" + Date.now(),
+          type: "friend_accept",
+          actorId: req.fromUid,
+          content: `and you are now friends on NetPará! 🎉`,
+          targetId: req.fromUid,
+          time: Date.now(),
+          isRead: false
+        });
+      }
+
+      saveDb(db);
+      return req;
+    },
+
+    declineFriendRequest: (reqId) => {
+      if (!db.friendRequests) db.friendRequests = [];
+      const req = db.friendRequests.find(r => r.id === reqId);
+      if (req) {
+        req.status = "declined";
+        db.friendRequests = db.friendRequests.filter(r => r.id !== reqId);
+        saveDb(db);
+        return true;
+      }
+      return false;
+    },
+
+    sendFriendRequest: (targetUid) => {
+      if (!db.friendRequests) db.friendRequests = [];
+      // check if exists
+      const existing = db.friendRequests.find(r => 
+        (r.fromUid === "user_me" && r.toUid === targetUid) ||
+        (r.fromUid === targetUid && r.toUid === "user_me")
+      );
+      if (existing) return existing;
+
+      const newReq = {
+        id: "req_" + Date.now(),
+        fromUid: "user_me",
+        toUid: targetUid,
+        mutualFriends: Math.floor(Math.random() * 8) + 2,
+        timestamp: Date.now(),
+        status: "pending"
+      };
+      db.friendRequests.push(newReq);
+      saveDb(db);
+      return newReq;
+    },
+
+    cancelFriendRequest: (targetUid) => {
+      if (!db.friendRequests) return false;
+      db.friendRequests = db.friendRequests.filter(r => 
+        !(r.fromUid === "user_me" && r.toUid === targetUid)
+      );
+      saveDb(db);
+      return true;
+    },
+
+    hasPendingRequest: (targetUid) => {
+      if (!db.friendRequests) return false;
+      return db.friendRequests.some(r => 
+        r.fromUid === "user_me" && r.toUid === targetUid && r.status === "pending"
+      );
+    },
+
+    isFriend: (uid) => {
+      const me = db.users.find(u => u.uid === "user_me");
+      return me?.friendsList?.includes(uid) || false;
+    },
+
+    getFriendSuggestions: () => {
+      const me = db.users.find(u => u.uid === "user_me");
+      const friends = me?.friendsList || [];
+      const pendingSent = (db.friendRequests || [])
+        .filter(r => r.fromUid === "user_me" && r.status === "pending")
+        .map(r => r.toUid);
+      const pendingReceived = (db.friendRequests || [])
+        .filter(r => r.toUid === "user_me" && r.status === "pending")
+        .map(r => r.fromUid);
+
+      return db.users.filter(u => 
+        u.uid !== "user_me" &&
+        !friends.includes(u.uid) &&
+        !pendingReceived.includes(u.uid)
+      ).map(u => ({
+        ...u,
+        hasRequested: pendingSent.includes(u.uid),
+        mutualFriends: Math.floor(Math.random() * 12) + 1
+      }));
+    },
+
+    getFriends: (uid = "user_me") => {
+      const targetUser = db.users.find(u => u.uid === uid);
+      const friendIds = targetUser?.friendsList || [];
+      return db.users.filter(u => friendIds.includes(u.uid));
+    },
+
+    removeFriend: (targetUid) => {
+      const me = db.users.find(u => u.uid === "user_me");
+      const target = db.users.find(u => u.uid === targetUid);
+      if (me && me.friendsList) {
+        me.friendsList = me.friendsList.filter(id => id !== targetUid);
+        me.friendsCount = Math.max(0, (me.friendsCount || 1) - 1);
+      }
+      if (target && target.friendsList) {
+        target.friendsList = target.friendsList.filter(id => id !== "user_me");
+        target.friendsCount = Math.max(0, (target.friendsCount || 1) - 1);
       }
       saveDb(db);
       return true;

@@ -39,7 +39,8 @@ const NetParaComments = (function () {
           <img src="${author.avatarUrl}" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;" />
           <div style="flex: 1;">
             <div style="background: var(--surface-hover); padding: 8px 12px; border-radius: 14px;">
-              <span style="font-weight: 700; font-size: 0.88rem;">${author.fullName}</span>
+              <span style="font-weight: 700; font-size: 0.88rem;">${author.nickname ? `${author.fullName} (${author.nickname})` : author.fullName}</span>
+              ${author.isVerified ? '<span class="verified-badge" style="margin-left: 4px; vertical-align: middle;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#0095F6"/><path d="M8.5 12.5L11 15L16 9.5" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' : ''}
               <p style="font-size: 0.9rem; margin-top: 2px;">${comment.text}</p>
             </div>
             <div style="display: flex; gap: 14px; margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); padding-left: 6px;">

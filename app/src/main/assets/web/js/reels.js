@@ -17,7 +17,7 @@ const NetParaReels = (function () {
       const author = NetParaBackend.getUser(reel.authorId) || {
         fullName: "Creator",
         username: "creator",
-        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        avatarUrl: "img/avatar_anisur_tanvi.jpg"
       };
 
       return `

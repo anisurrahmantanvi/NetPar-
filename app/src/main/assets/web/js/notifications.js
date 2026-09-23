@@ -40,6 +40,8 @@ const NetParaNotifications = (function () {
       like: "❤️",
       comment: "💬",
       follow: "👤",
+      friend_request: "👥",
+      friend_accept: "🎉",
       mention: "🏷️",
       system: "🔔"
     };
@@ -96,6 +98,8 @@ const NetParaNotifications = (function () {
       renderList();
       if (type === "follow" && targetId) {
         NetParaApp.openProfile(targetId);
+      } else if (type === "friend_request" || type === "friend_accept") {
+        NetParaApp.navigate("friends");
       } else if (type === "like" || type === "comment") {
         NetParaApp.navigate("feed");
       }
