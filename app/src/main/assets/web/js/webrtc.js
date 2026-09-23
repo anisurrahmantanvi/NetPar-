@@ -151,6 +151,115 @@ const NetParaWebRTC = (function () {
     }
   }
 
+  let statsInterval = null;
+  let previousPacketsLost = 0;
+  let previousPacketsReceived = 0;
+
+  function startStatsMonitoring(callback) {
+    if (statsInterval) clearInterval(statsInterval);
+    previousPacketsLost = 0;
+    previousPacketsReceived = 0;
+
+    statsInterval = setInterval(async () => {
+      if (!peerConnection) {
+        stopStatsMonitoring();
+        return;
+      }
+
+      const iceState = peerConnection.iceConnectionState;
+      const connState = peerConnection.connectionState;
+
+      if (iceState === 'disconnected' || connState === 'disconnected') {
+        if (callback) callback({ quality: 'yellow', label: 'Reconnecting...', rtt: null });
+        return;
+      }
+      if (iceState === 'failed' || connState === 'failed') {
+        if (callback) callback({ quality: 'red', label: 'Connection Failed', rtt: null });
+        return;
+      }
+      if (iceState !== 'connected' && iceState !== 'completed' && connState !== 'connected') {
+        return;
+      }
+
+      try {
+        const statsReport = await peerConnection.getStats();
+        let currentRtt = null;
+        let packetsLost = 0;
+        let packetsReceived = 0;
+        let jitter = null;
+
+        statsReport.forEach(report => {
+          // Candidate pair for Round Trip Time (RTT)
+          if (report.type === 'candidate-pair' && (report.state === 'succeeded' || report.nominated)) {
+            if (typeof report.currentRoundTripTime === 'number') {
+              currentRtt = Math.round(report.currentRoundTripTime * 1000);
+            } else if (typeof report.roundTripTime === 'number') {
+              currentRtt = Math.round(report.roundTripTime * 1000);
+            }
+          }
+
+          // Inbound RTP for packet loss and jitter
+          if (report.type === 'inbound-rtp') {
+            if (typeof report.packetsLost === 'number') packetsLost += report.packetsLost;
+            if (typeof report.packetsReceived === 'number') packetsReceived += report.packetsReceived;
+            if (typeof report.jitter === 'number') jitter = Math.round(report.jitter * 1000);
+          }
+        });
+
+        // Compute incremental delta packet loss
+        const deltaLost = Math.max(0, packetsLost - previousPacketsLost);
+        const deltaReceived = Math.max(0, packetsReceived - previousPacketsReceived);
+        const deltaTotal = deltaLost + deltaReceived;
+        const lossRate = deltaTotal > 0 ? (deltaLost / deltaTotal) * 100 : 0;
+
+        previousPacketsLost = packetsLost;
+        previousPacketsReceived = packetsReceived;
+
+        // Dynamic Color Classification (Green / Yellow / Red):
+        // Green (Excellent): RTT <= 150ms & lossRate < 2%
+        // Yellow (Moderate / Fair): RTT 151-300ms OR lossRate 2% - 7.9%
+        // Red (Poor / Critical): RTT > 300ms OR lossRate >= 8%
+        let color = 'green';
+        let label = 'HD • Good';
+
+        if (currentRtt !== null) {
+          if (currentRtt > 300 || lossRate >= 8) {
+            color = 'red';
+            label = `Poor • ${currentRtt}ms`;
+          } else if (currentRtt > 150 || lossRate >= 2) {
+            color = 'yellow';
+            label = `Fair • ${currentRtt}ms`;
+          } else {
+            color = 'green';
+            label = `HD • ${currentRtt}ms`;
+          }
+        } else {
+          color = 'green';
+          label = 'HD • Good';
+        }
+
+        if (callback) {
+          callback({
+            quality: color, // 'green' | 'yellow' | 'red'
+            label: label,
+            rtt: currentRtt,
+            lossRate: Math.round(lossRate * 10) / 10,
+            jitter
+          });
+        }
+      } catch (e) {
+        console.warn("WebRTC getStats error:", e);
+      }
+    }, 1500);
+  }
+
+  function stopStatsMonitoring() {
+    if (statsInterval) {
+      clearInterval(statsInterval);
+      statsInterval = null;
+    }
+  }
+
   return {
     /**
      * Acquire User Media (Camera & Microphone)
@@ -229,21 +338,37 @@ const NetParaWebRTC = (function () {
         }
       };
 
-      // Monitor ICE Connection State
+      // Monitor ICE Connection State & getStats report
       peerConnection.oniceconnectionstatechange = () => {
         const state = peerConnection.iceConnectionState;
         console.log("ICE Connection State:", state);
 
         if (state === 'connected' || state === 'completed') {
-          if (onNetworkQualityChange) onNetworkQualityChange('good');
+          if (onNetworkQualityChange) {
+            onNetworkQualityChange({ quality: 'green', label: 'HD • Connected', rtt: null });
+            startStatsMonitoring(onNetworkQualityChange);
+          }
         } else if (state === 'disconnected') {
-          if (onNetworkQualityChange) onNetworkQualityChange('poor');
+          if (onNetworkQualityChange) onNetworkQualityChange({ quality: 'yellow', label: 'Reconnecting...', rtt: null });
         } else if (state === 'failed') {
-          if (onNetworkQualityChange) onNetworkQualityChange('failed');
+          if (onNetworkQualityChange) onNetworkQualityChange({ quality: 'red', label: 'Weak • Failed', rtt: null });
+          stopStatsMonitoring();
           // Try ICE restart on failure
           if (currentRole === 'caller') {
             NetParaWebRTC.restartIce();
           }
+        }
+      };
+
+      peerConnection.onconnectionstatechange = () => {
+        const state = peerConnection.connectionState;
+        if (state === 'connected') {
+          startStatsMonitoring(onNetworkQualityChange);
+        } else if (state === 'disconnected') {
+          if (onNetworkQualityChange) onNetworkQualityChange({ quality: 'yellow', label: 'Reconnecting...', rtt: null });
+        } else if (state === 'failed') {
+          if (onNetworkQualityChange) onNetworkQualityChange({ quality: 'red', label: 'Weak • Disconnected', rtt: null });
+          stopStatsMonitoring();
         }
       };
 
@@ -381,6 +506,7 @@ const NetParaWebRTC = (function () {
      * End and Clean Up All WebRTC Resources
      */
     endCall: function (status = 'ended') {
+      stopStatsMonitoring();
       sendSignal('status_update', { status });
 
       // Clean up signaling listeners

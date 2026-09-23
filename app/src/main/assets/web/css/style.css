@@ -126,6 +126,13 @@ html, body {
   color: var(--danger);
 }
 
+.network-pill.firebase-live {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(6, 182, 212, 0.2));
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  color: #38BDF8;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+}
+
 .network-dot {
   width: 6px;
   height: 6px;

@@ -259,6 +259,28 @@ const NetParaChat = (function () {
           );
         }
       }, 1500);
+    },
+
+    onRemoteMessageUpdate: (convId, convData) => {
+      const db = NetParaBackend.getDb();
+      const existingConv = db.conversations.find(c => c.id === convId);
+      if (existingConv) {
+        existingConv.lastMessage = convData.lastMessage;
+        existingConv.timestamp = Date.now();
+      } else {
+        db.conversations.unshift({
+          id: convId,
+          participantId: (convData.participants || []).find(p => p !== "user_me") || "user_sadia",
+          lastMessage: convData.lastMessage,
+          timestamp: Date.now(),
+          unreadCount: 1
+        });
+      }
+      NetParaBackend.save();
+      renderConversationsList();
+      if (activeConvId === convId) {
+        renderRoomMessages();
+      }
     }
   };
 })();

@@ -115,6 +115,25 @@ const NetParaSettings = (function () {
       if (modal) modal.classList.remove("open");
     },
 
+    openFirebaseModal: () => {
+      const modal = document.getElementById("firebase-cloud-modal");
+      if (modal) {
+        modal.classList.add("open");
+        const statusEl = document.getElementById("firebase-status-display");
+        const isConnected = window.NetParaFirebase && window.NetParaFirebase.isConnected();
+        if (statusEl) {
+          statusEl.innerHTML = isConnected
+            ? `<span style="color: #10B981; font-weight: bold;">🟢 Cloud Firestore Live & Synced</span>`
+            : `<span style="color: #F59E0B; font-weight: bold;">🟡 Local Offline Mode (Auto-reconnecting)</span>`;
+        }
+      }
+    },
+
+    closeFirebaseModal: () => {
+      const modal = document.getElementById("firebase-cloud-modal");
+      if (modal) modal.classList.remove("open");
+    },
+
     unblockUser: (uid) => {
       const me = NetParaBackend.getCurrentUser();
       if (me && me.blockedUsers) {

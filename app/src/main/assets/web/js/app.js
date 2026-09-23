@@ -27,6 +27,9 @@ const NetParaApp = (function () {
     }
 
     // Initialize modules
+    if (window.NetParaFirebase) {
+      NetParaFirebase.init();
+    }
     NetParaSettings.init();
     NetParaFeed.init();
     NetParaNotifications.init();

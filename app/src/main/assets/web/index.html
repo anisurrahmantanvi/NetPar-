@@ -272,6 +272,17 @@
           <!-- Settings & Preferences Section -->
           <div class="menu-section-header">⚙️ Settings & Preferences</div>
           <div class="menu-group-card">
+            <div class="menu-item-row" onclick="NetParaSettings.openFirebaseModal()">
+              <div class="menu-item-left">
+                <span class="menu-item-icon">⚡</span>
+                <div>
+                  <div class="menu-item-label">Firebase Cloud Database</div>
+                  <div class="menu-item-sub">Real-time sync, Cloud Firestore & Auth</div>
+                </div>
+              </div>
+              <span style="font-size: 0.78rem; font-weight: 700; color: #10B981;">Live 🟢</span>
+            </div>
+
             <div class="menu-item-row" onclick="NetParaMenu.toggleTheme()">
               <div class="menu-item-left">
                 <span class="menu-item-icon">🌙</span>
@@ -814,6 +825,39 @@
     </div>
   </div>
 
+  <!-- Firebase Cloud Database Live Modal -->
+  <div id="firebase-cloud-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">⚡ Firebase Real-time Cloud</h3>
+        <button class="icon-btn" onclick="NetParaSettings.closeFirebaseModal()">✕</button>
+      </div>
+      <div style="padding: 16px;">
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px; margin-bottom: 16px; text-align: center;">
+          <div id="firebase-status-display" style="font-size: 1rem; margin-bottom: 4px;">🟢 Cloud Firestore Live & Synced</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">Real-time bidirectional synchronization active with offline cache failover</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div style="background: var(--surface); padding: 12px; border-radius: 10px; border: 1px solid var(--surface-border);">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Firestore Collections</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: var(--primary);">posts, calls, msgs</div>
+          </div>
+          <div style="background: var(--surface); padding: 12px; border-radius: 10px; border: 1px solid var(--surface-border);">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Sync Mode</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: #10B981;">Realtime Push/Pull</div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+          All your posts, direct messages, comments, notifications, and 1-to-1 WebRTC calls synchronize instantly across devices via Cloud Firestore with offline cache support.
+        </div>
+
+        <button class="btn-primary" style="width: 100%;" onclick="NetParaSettings.closeFirebaseModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Incoming Call Floating Banner -->
   <div id="incoming-call-modal" class="incoming-call-modal" style="display: none;">
     <div class="incoming-call-info">
@@ -932,6 +976,11 @@
   </div>
 
   <!-- Script Modules -->
+  <!-- Firebase Cloud Real-time SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
   <script src="js/backend.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/feed.js"></script>

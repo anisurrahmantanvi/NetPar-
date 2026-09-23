@@ -572,7 +572,34 @@ const NetParaBackend = (function () {
       const me = db.users.find(u => u.uid === "user_me");
       if (me) me.postsCount = (me.postsCount || 0) + 1;
       saveDb(db);
+
+      // Publish to live Cloud Firestore
+      if (window.NetParaFirebase && window.NetParaFirebase.publishPostToCloud) {
+        NetParaFirebase.publishPostToCloud(newPost);
+      }
+
       return newPost;
+    },
+    mergeCloudPosts: (cloudPosts) => {
+      if (!cloudPosts || cloudPosts.length === 0) return;
+      const existingIds = new Set(db.posts.map(p => p.id));
+      let added = false;
+      cloudPosts.forEach(cp => {
+        if (!existingIds.has(cp.id)) {
+          db.posts.unshift(cp);
+          existingIds.add(cp.id);
+          added = true;
+        } else {
+          const idx = db.posts.findIndex(p => p.id === cp.id);
+          if (idx !== -1) {
+            db.posts[idx] = { ...db.posts[idx], ...cp };
+          }
+        }
+      });
+      if (added) {
+        db.posts.sort((a, b) => b.createdAt - a.createdAt);
+      }
+      saveDb(db);
     },
     deletePost: (postId) => {
       db.posts = db.posts.filter(p => p.id !== postId);
@@ -684,6 +711,12 @@ const NetParaBackend = (function () {
         conv.timestamp = Date.now();
       }
       saveDb(db);
+
+      // Sync message with Cloud Firestore
+      if (window.NetParaFirebase && window.NetParaFirebase.sendMessageToCloud && conv) {
+        NetParaFirebase.sendMessageToCloud(convId, msg, [conv.participantId, "user_me"]);
+      }
+
       return msg;
     },
 

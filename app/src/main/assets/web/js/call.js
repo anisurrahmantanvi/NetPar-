@@ -510,18 +510,70 @@ const NetParaCall = (function () {
       }
     },
 
-    updateNetworkQuality: function (quality) {
+    updateNetworkQuality: function (stats) {
       if (!networkBadgeEl) return;
-      if (quality === 'good') {
-        networkBadgeEl.className = "call-network-badge";
-        networkBadgeEl.innerHTML = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981;"></span> HD • Good`;
-      } else if (quality === 'poor') {
-        networkBadgeEl.className = "call-network-badge poor";
-        networkBadgeEl.innerHTML = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #EF4444;"></span> Weak Connection`;
-      } else if (quality === 'failed') {
-        networkBadgeEl.className = "call-network-badge reconnecting";
-        networkBadgeEl.innerHTML = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #F59E0B;"></span> Reconnecting...`;
+      networkBadgeEl.style.display = "inline-flex";
+
+      let color = 'green';
+      let label = 'HD • Good';
+      let rtt = null;
+
+      if (typeof stats === 'string') {
+        if (stats === 'good') {
+          color = 'green';
+          label = 'HD • Connected';
+        } else if (stats === 'poor' || stats === 'failed') {
+          color = 'red';
+          label = stats === 'poor' ? 'Weak Connection' : 'Connection Failed';
+        } else {
+          color = 'yellow';
+          label = 'Reconnecting...';
+        }
+      } else if (typeof stats === 'object' && stats !== null) {
+        color = stats.quality || 'green'; // 'green' | 'yellow' | 'red'
+        label = stats.label || 'HD • Good';
+        rtt = stats.rtt;
       }
+
+      // Reset color classes
+      networkBadgeEl.classList.remove("quality-green", "quality-yellow", "quality-red", "poor", "reconnecting");
+      networkBadgeEl.classList.add(`quality-${color}`);
+
+      // Signal bars SVG & pulsating glow indicator
+      let barsSvg = '';
+      if (color === 'green') {
+        barsSvg = `
+          <svg class="network-bars-icon" width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <line x1="5" y1="20" x2="5" y2="15" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
+            <line x1="11" y1="20" x2="11" y2="10" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
+            <line x1="17" y1="20" x2="17" y2="5" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <span class="network-dot-indicator green"></span>
+        `;
+      } else if (color === 'yellow') {
+        barsSvg = `
+          <svg class="network-bars-icon" width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <line x1="5" y1="20" x2="5" y2="15" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
+            <line x1="11" y1="20" x2="11" y2="10" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
+            <line x1="17" y1="20" x2="17" y2="5" stroke="rgba(255,255,255,0.2)" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <span class="network-dot-indicator yellow"></span>
+        `;
+      } else { // red
+        barsSvg = `
+          <svg class="network-bars-icon" width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <line x1="5" y1="20" x2="5" y2="15" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
+            <line x1="11" y1="20" x2="11" y2="10" stroke="rgba(255,255,255,0.2)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="17" y1="20" x2="17" y2="5" stroke="rgba(255,255,255,0.2)" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <span class="network-dot-indicator red"></span>
+        `;
+      }
+
+      networkBadgeEl.innerHTML = `
+        ${barsSvg}
+        <span class="network-quality-text">${label}</span>
+      `;
     },
 
     getActiveCall: () => activeCall
