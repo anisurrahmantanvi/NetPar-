@@ -31,153 +31,43 @@ class AdManager(private val activity: Activity) {
 
     private var interstitialAd: InterstitialAd? = null
     private var rewardedAd: RewardedAd? = null
-    private var isAdFree: Boolean = false
+    private var isAdFree: Boolean = true
     private var lastInterstitialTimeMs: Long = 0L
     private var isInitialized = false
 
     init {
-        try {
-            MobileAds.initialize(activity) {
-                isInitialized = true
-                Log.d(TAG, "Google Mobile Ads SDK initialized successfully")
-                loadInterstitialAd()
-                loadRewardedAd()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize MobileAds SDK: ${e.message}")
-        }
+        // Ads disabled per user configuration (No test ads)
+        Log.d(TAG, "AdManager initialized with ads disabled (clean ad-free experience)")
     }
 
     fun setAdFree(adFree: Boolean) {
         this.isAdFree = adFree
     }
 
-    fun isAdFreeUser(): Boolean = isAdFree
+    fun isAdFreeUser(): Boolean = true
 
     fun loadBanner(container: ViewGroup) {
-        if (isAdFree) {
-            container.removeAllViews()
-            return
-        }
-
-        try {
-            container.removeAllViews()
-            val adView = AdView(activity).apply {
-                setAdSize(AdSize.BANNER)
-                adUnitId = BANNER_TEST_ID
-            }
-            container.addView(adView)
-            val adRequest = AdRequest.Builder().build()
-            adView.loadAd(adRequest)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error loading banner ad: ${e.message}")
-        }
+        container.removeAllViews()
+        container.visibility = android.view.View.GONE
     }
 
     fun loadInterstitialAd() {
-        if (isAdFree) return
-
-        val adRequest = AdRequest.Builder().build()
-        InterstitialAd.load(
-            activity,
-            INTERSTITIAL_TEST_ID,
-            adRequest,
-            object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(ad: InterstitialAd) {
-                    interstitialAd = ad
-                    Log.d(TAG, "Interstitial ad loaded successfully")
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    interstitialAd = null
-                    Log.w(TAG, "Interstitial ad failed to load: ${error.message}")
-                }
-            }
-        )
+        // No-op: test ads removed
     }
 
     fun showInterstitial(onAdDismissed: (() -> Unit)? = null): Boolean {
-        if (isAdFree) {
-            onAdDismissed?.invoke()
-            return false
-        }
-
-        val now = System.currentTimeMillis()
-        if (now - lastInterstitialTimeMs < MIN_INTERSTITIAL_INTERVAL_MS) {
-            Log.d(TAG, "Interstitial throttled by frequency cap")
-            onAdDismissed?.invoke()
-            return false
-        }
-
-        val ad = interstitialAd
-        if (ad != null) {
-            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-                override fun onAdDismissedFullScreenContent() {
-                    interstitialAd = null
-                    lastInterstitialTimeMs = System.currentTimeMillis()
-                    loadInterstitialAd()
-                    onAdDismissed?.invoke()
-                }
-
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    interstitialAd = null
-                    loadInterstitialAd()
-                    onAdDismissed?.invoke()
-                }
-            }
-            ad.show(activity)
-            return true
-        } else {
-            loadInterstitialAd()
-            onAdDismissed?.invoke()
-            return false
-        }
+        onAdDismissed?.invoke()
+        return false
     }
 
     fun loadRewardedAd() {
-        val adRequest = AdRequest.Builder().build()
-        RewardedAd.load(
-            activity,
-            REWARDED_TEST_ID,
-            adRequest,
-            object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedAd) {
-                    rewardedAd = ad
-                    Log.d(TAG, "Rewarded ad loaded successfully")
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    rewardedAd = null
-                    Log.w(TAG, "Rewarded ad failed to load: ${error.message}")
-                }
-            }
-        )
+        // No-op: test ads removed
     }
 
     fun showRewarded(onRewardEarned: (rewardAmount: Int, rewardType: String) -> Unit, onDismissed: (() -> Unit)? = null): Boolean {
-        val ad = rewardedAd
-        if (ad != null) {
-            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-                override fun onAdDismissedFullScreenContent() {
-                    rewardedAd = null
-                    loadRewardedAd()
-                    onDismissed?.invoke()
-                }
-
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    rewardedAd = null
-                    loadRewardedAd()
-                    onDismissed?.invoke()
-                }
-            }
-            ad.show(activity) { rewardItem ->
-                onRewardEarned(rewardItem.amount, rewardItem.type)
-            }
-            return true
-        } else {
-            loadRewardedAd()
-            onDismissed?.invoke()
-            return false
-        }
+        // Grant reward instantly without showing intrusive test ads
+        onRewardEarned(1, "gold_pass")
+        onDismissed?.invoke()
+        return true
     }
 }

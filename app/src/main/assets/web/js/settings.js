@@ -77,21 +77,14 @@ const NetParaSettings = (function () {
     },
 
     watchRewardedForGold: () => {
-      if (window.NetParaNative && window.NetParaNative.showRewardedAd) {
-        window.NetParaNative.showRewardedAd();
-      } else {
-        // Fallback for browser testing
-        setTimeout(() => {
-          NetParaSettings.onRewardedRewardEarned(1, "gold_24h");
-        }, 1000);
-      }
+      NetParaSettings.onRewardedRewardEarned(1, "gold_vip");
     },
 
     onRewardedRewardEarned: (amount, type) => {
       NetParaBackend.updateUser("user_me", { isPremium: true, isVerified: true });
       if (window.NetParaNative) {
         window.NetParaNative.setAdFree(true);
-        window.NetParaNative.showToast("🎉 NetPará Gold unlocked for 24 hours!");
+        window.NetParaNative.showToast("🎉 NetPara Gold VIP Activated!");
       }
       NetParaSettings.closePremiumModal();
       NetParaProfile.show("user_me");

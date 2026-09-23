@@ -13,7 +13,7 @@ class NotificationManager(private val context: Context) {
 
     companion object {
         const val CHANNEL_ID = "netpara_social_channel"
-        const val CHANNEL_NAME = "NetPará Notifications"
+        const val CHANNEL_NAME = "NetPara Notifications"
         const val CHANNEL_DESC = "Updates on likes, comments, messages and followers"
     }
 

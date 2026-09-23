@@ -156,10 +156,8 @@ const NetParaPosts = (function () {
         });
 
         if (window.NetParaNative) {
-          window.NetParaNative.showToast("Post shared to NetPará!");
+          window.NetParaNative.showToast("Post shared to NetPara!");
           window.NetParaNative.vibrate(40);
-          // Show interstitial ad on natural post milestone if eligible
-          window.NetParaNative.showInterstitialAd();
         }
 
         if (publishBtn) {

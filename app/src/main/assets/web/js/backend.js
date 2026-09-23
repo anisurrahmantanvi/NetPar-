@@ -4,9 +4,9 @@
  */
 
 const NetParaBackend = (function () {
-  const DB_KEY = "netpara_production_db_v2";
+  const DB_KEY = "netpara_production_db_v3";
 
-  // Default seed database with rich, realistic content
+  // Default seed database with rich Bangladeshi content
   const defaultDatabase = {
     users: [
       {
@@ -15,7 +15,7 @@ const NetParaBackend = (function () {
         fullName: "Anisur Rahman",
         nickname: "Tanvi",
         email: "anisurrahmantanvi@gmail.com",
-        bio: "Tech enthusiast & digital creator 🚀 Welcome to my verified NetPará profile! ✨🇧🇩",
+        bio: "Tech enthusiast & digital creator 🚀 Welcome to my verified NetPara profile! ✨🇧🇩",
         website: "https://netpara.social/tanvi",
         avatarUrl: "img/avatar_anisur_tanvi.jpg",
         coverUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
@@ -25,23 +25,23 @@ const NetParaBackend = (function () {
         followingCount: 382,
         postsCount: 18,
         friendsCount: 152,
-        friendsList: ["user_mariana", "user_tiago", "user_beatriz"],
+        friendsList: ["user_sadia", "user_tanvir", "user_rahim"],
         city: "Dhaka",
         hometown: "Dhaka, Bangladesh",
         work: "Software Engineer & Creator",
-        role: "admin", // Allows testing admin moderation!
+        role: "admin",
         isPrivate: false,
         blockedUsers: [],
         savedPostIds: ["post_2"],
         createdAt: Date.now() - 86400000 * 30
       },
       {
-        uid: "user_mariana",
-        username: "mariana_costa",
-        fullName: "Mariana Costa",
-        email: "mariana@example.com",
-        bio: "Gastronomy lover & Cultural journalist in Pará 🍲 Açaí, Tacacá & Amazonian roots.",
-        website: "https://culinariapara.com",
+        uid: "user_sadia",
+        username: "sadia_clicks",
+        fullName: "Sadia Islam",
+        email: "sadia@netpara.social",
+        bio: "Visual storyteller & travel photographer from Sylhet 📸 Tea gardens, rivers & the beauty of Bangladesh! 🌿✨",
+        website: "https://sadiaclicks.com",
         avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
         coverUrl: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80",
         isVerified: true,
@@ -49,8 +49,8 @@ const NetParaBackend = (function () {
         followersCount: 8930,
         followingCount: 410,
         friendsCount: 156,
-        friendsList: ["user_me", "user_tiago"],
-        city: "Belém, Pará",
+        friendsList: ["user_me", "user_tanvir"],
+        city: "Sylhet, Bangladesh",
         postsCount: 54,
         role: "user",
         isPrivate: false,
@@ -59,21 +59,21 @@ const NetParaBackend = (function () {
         createdAt: Date.now() - 86400000 * 45
       },
       {
-        uid: "user_tiago",
-        username: "tiago_dev",
-        fullName: "Tiago Mendes",
-        email: "tiago@tech.io",
-        bio: "Software Architect | Mobile & AI Enthusiast 🚀 Sharing code & Amazon startups.",
-        website: "https://github.com/tiago",
+        uid: "user_tanvir",
+        username: "tanvir_dev",
+        fullName: "Tanvir Ahmed",
+        email: "tanvir@techbd.io",
+        bio: "Full-stack Developer & Open-source Creator 🚀 Building modern apps and sharing developer tutorials! 💻🇧🇩",
+        website: "https://github.com/tanvirdev",
         avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
         coverUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
-        isVerified: false,
+        isVerified: true,
         isPremium: false,
         followersCount: 3100,
         followingCount: 220,
         friendsCount: 94,
-        friendsList: ["user_me", "user_mariana"],
-        city: "Castanhal, Pará",
+        friendsList: ["user_me", "user_sadia"],
+        city: "Dhaka, Bangladesh",
         postsCount: 32,
         role: "user",
         isPrivate: false,
@@ -82,12 +82,12 @@ const NetParaBackend = (function () {
         createdAt: Date.now() - 86400000 * 15
       },
       {
-        uid: "user_camila",
-        username: "camila_dance",
-        fullName: "Camila Santos",
-        email: "camila@netpara.social",
-        bio: "Carimbó & Brega dancer 💃 Sharing Pará rhythms with the world! ✨",
-        website: "https://instagram.com/camila_dance",
+        uid: "user_nusrat",
+        username: "nusrat_jahan",
+        fullName: "Nusrat Jahan",
+        email: "nusrat@design.bd",
+        bio: "Traditional art & fashion designer 🎨 Celebrating Bengali heritage and modern designs ✨",
+        website: "https://instagram.com/nusrat_design",
         avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
         coverUrl: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80",
         isVerified: true,
@@ -95,8 +95,8 @@ const NetParaBackend = (function () {
         followersCount: 15400,
         followingCount: 512,
         friendsCount: 310,
-        friendsList: ["user_mariana"],
-        city: "Belém, Pará",
+        friendsList: ["user_sadia"],
+        city: "Dhaka, Bangladesh",
         postsCount: 42,
         role: "user",
         isPrivate: false,
@@ -105,12 +105,12 @@ const NetParaBackend = (function () {
         createdAt: Date.now() - 86400000 * 60
       },
       {
-        uid: "user_lucas",
-        username: "lucas_amazon",
-        fullName: "Lucas Oliveira",
-        email: "lucas@ecotour.br",
-        bio: "Eco-guide in Alter do Chão & Tapajós 🌴 River explorer & wildlife preservation.",
-        website: "https://tapajosguide.com",
+        uid: "user_rahim",
+        username: "rahim_vlogs",
+        fullName: "Rahim Chowdhury",
+        email: "rahim@vlogs.bd",
+        bio: "Foodie & Explorer 🍲 Exploring Old Dhaka street food and the shores of Cox's Bazar!",
+        website: "https://rahimvlogs.com",
         avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
         coverUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
         isVerified: false,
@@ -118,8 +118,8 @@ const NetParaBackend = (function () {
         followersCount: 4200,
         followingCount: 380,
         friendsCount: 180,
-        friendsList: ["user_tiago"],
-        city: "Santarém, Pará",
+        friendsList: ["user_tanvir"],
+        city: "Chittagong, Bangladesh",
         postsCount: 29,
         role: "user",
         isPrivate: false,
@@ -128,11 +128,11 @@ const NetParaBackend = (function () {
         createdAt: Date.now() - 86400000 * 40
       },
       {
-        uid: "user_beatriz",
-        username: "beatriz_marajo",
-        fullName: "Beatriz Lima",
-        email: "beatriz@art.br",
-        bio: "Ceramics & Visual Artist inspired by Marajoara ancestral patterns 🏺🎨",
+        uid: "user_farhana",
+        username: "farhana_art",
+        fullName: "Farhana Akter",
+        email: "farhana@art.bd",
+        bio: "Handcrafted pottery & Rickshaw art painter 🎨 Proudly showcasing Bangladeshi culture!",
         website: "https://arteparamarajo.com",
         avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
         coverUrl: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1200&q=80",
@@ -142,7 +142,7 @@ const NetParaBackend = (function () {
         followingCount: 290,
         friendsCount: 215,
         friendsList: ["user_me"],
-        city: "Soure, Ilha do Marajó",
+        city: "Narayanganj, Bangladesh",
         postsCount: 36,
         role: "user",
         isPrivate: false,
@@ -151,12 +151,12 @@ const NetParaBackend = (function () {
         createdAt: Date.now() - 86400000 * 25
       },
       {
-        uid: "user_rodrigo",
-        username: "rodrigo_farias",
-        fullName: "Rodrigo Farias",
-        email: "rodrigo@startup.pa",
-        bio: "Product Designer & Community Builder 📱 Innovating from the heart of the Amazon.",
-        website: "https://rodrigodesign.pa",
+        uid: "user_shakil",
+        username: "shakil_khan",
+        fullName: "Shakil Khan",
+        email: "shakil@startup.bd",
+        bio: "Product Lead & Tech Community Builder 📱 Innovating digital services in Bangladesh",
+        website: "https://shakilkhan.dev",
         avatarUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80",
         coverUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
         isVerified: false,
@@ -164,43 +164,20 @@ const NetParaBackend = (function () {
         followersCount: 2100,
         followingCount: 190,
         friendsCount: 140,
-        friendsList: ["user_tiago", "user_mariana"],
-        city: "Belém, Pará",
+        friendsList: ["user_tanvir", "user_sadia"],
+        city: "Rajshahi, Bangladesh",
         postsCount: 19,
         role: "user",
         isPrivate: false,
         blockedUsers: [],
         savedPostIds: [],
         createdAt: Date.now() - 86400000 * 18
-      },
-      {
-        uid: "user_gabriel",
-        username: "gabriel_rocha",
-        fullName: "Gabriel Rocha",
-        email: "gabriel@music.pa",
-        bio: "Guitarist & Composer 🎸 Blending Amazonian Guitarrada with modern indie rock.",
-        website: "https://gabrielrocha.com",
-        avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80",
-        coverUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
-        isVerified: false,
-        isPremium: false,
-        followersCount: 3600,
-        followingCount: 420,
-        friendsCount: 260,
-        friendsList: [],
-        city: "Ananindeua, Pará",
-        postsCount: 27,
-        role: "user",
-        isPrivate: false,
-        blockedUsers: [],
-        savedPostIds: [],
-        createdAt: Date.now() - 86400000 * 20
       }
     ],
     friendRequests: [
       {
         id: "req_1",
-        fromUid: "user_camila",
+        fromUid: "user_nusrat",
         toUid: "user_me",
         mutualFriends: 12,
         timestamp: Date.now() - 3600000 * 2,
@@ -208,7 +185,7 @@ const NetParaBackend = (function () {
       },
       {
         id: "req_2",
-        fromUid: "user_lucas",
+        fromUid: "user_rahim",
         toUid: "user_me",
         mutualFriends: 8,
         timestamp: Date.now() - 3600000 * 6,
@@ -216,7 +193,7 @@ const NetParaBackend = (function () {
       },
       {
         id: "req_3",
-        fromUid: "user_rodrigo",
+        fromUid: "user_shakil",
         toUid: "user_me",
         mutualFriends: 15,
         timestamp: Date.now() - 86400000,
@@ -234,26 +211,34 @@ const NetParaBackend = (function () {
       },
       {
         id: "story_2",
-        authorId: "user_mariana",
-        authorName: "mariana_costa",
+        authorId: "user_sadia",
+        authorName: "sadia_clicks",
         avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
         mediaUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
         isOwn: false
       },
       {
         id: "story_3",
-        authorId: "user_tiago",
-        authorName: "tiago_dev",
+        authorId: "user_tanvir",
+        authorName: "tanvir_dev",
         avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
         mediaUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
+        isOwn: false
+      },
+      {
+        id: "story_4",
+        authorId: "user_rahim",
+        authorName: "rahim_vlogs",
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        mediaUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
         isOwn: false
       }
     ],
     posts: [
       {
         id: "post_1",
-        authorId: "user_mariana",
-        content: "A golden sunset over Guajará Bay in Belém today! ✨ Watching the riverboats come in never gets old. Have you visited Ver-o-Peso market this week? #NetPara #Amazonia #Belem #SunsetVibes",
+        authorId: "user_sadia",
+        content: "A golden sunset over the river today! ✨ Watching the traditional country boats glide peacefully across the water never gets old. What's your favorite spot for an evening walk in Bangladesh? 🇧🇩🌿 #NetPara #Bangladesh #SunsetMagic #RiverineBeauty",
         mediaUrls: [
           "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1000&q=80",
           "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80"
@@ -269,8 +254,8 @@ const NetParaBackend = (function () {
       },
       {
         id: "post_2",
-        authorId: "user_tiago",
-        content: "Excited to unveil our newest open-source toolkit optimized for high-performance mobile apps across Brazil and Latin America! 🚀 Speed, resilience in low connectivity, and smooth animations. What tech stack are you rocking in 2026? #TechBrazil #CodingLife #MobileDev @anisur_tanvi",
+        authorId: "user_tanvir",
+        content: "Excited to unveil our newest open-source mobile toolkit built for high-performance apps in Bangladesh! 🚀 Ultra-fast caching, lightweight offline support, and smooth 60fps animations. What tech stack are you rocking in 2026? #BanglaTech #CodingLife #DevBD @anisur_tanvi",
         mediaUrls: [
           "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1000&q=80"
         ],
@@ -286,7 +271,7 @@ const NetParaBackend = (function () {
       {
         id: "post_3",
         authorId: "user_me",
-        content: "Building and testing the new NetPará experience! Fast feeds, smooth reels, and verified creator perks. Loving the sleek design and dark mode. What do you all think? 🚀✨ #NetPará #Tech #Creator #Verified",
+        content: "Building and testing the new NetPara experience! 🇧🇩 Fast feeds, smooth reels, verified creator badges, and clean ad-free browsing. Proud to share our tech journey with you all! Let me know your thoughts! 🚀✨ #NetPara #TechBD #Creator #Verified #Dhaka",
         mediaUrls: [
           "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1000&q=80"
         ],
@@ -298,15 +283,31 @@ const NetParaBackend = (function () {
         sharesCount: 22,
         savesCount: 104,
         createdAt: Date.now() - 3600000 * 22
+      },
+      {
+        id: "post_4",
+        authorId: "user_rahim",
+        content: "Hot Kacchi Biryani with Borhani on a rainy afternoon in Dhaka! 🍛🍖 Nothing beats authentic Puran Dhaka spices. Drop your favorite foodie spot below! #DhakaFoodies #KacchiBiryani #BanglaFood",
+        mediaUrls: [
+          "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=1000&q=80"
+        ],
+        videoUrl: null,
+        likesCount: 320,
+        reactions: { "love": 280, "like": 40 },
+        userReactions: {},
+        commentsCount: 35,
+        sharesCount: 19,
+        savesCount: 65,
+        createdAt: Date.now() - 3600000 * 28
       }
     ],
     reels: [
       {
         id: "reel_1",
-        authorId: "user_mariana",
-        caption: "Making authentic Tucupi with jambu! Experience the tingling sensation ✨🍲 #ParaGastronomy #AmazonFood",
+        authorId: "user_sadia",
+        caption: "Lush green tea gardens of Sreemangal at dawn 🌿 Morning mist and peace ✨ #SylhetDiaries #BeautifulBangladesh",
         videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
-        musicTitle: "Carimbó Moderno - Ritmo Amazônico",
+        musicTitle: "Bangla Folk Acoustic - River Melodies",
         likesCount: 1240,
         commentsCount: 89,
         sharesCount: 140,
@@ -314,10 +315,10 @@ const NetParaBackend = (function () {
       },
       {
         id: "reel_2",
-        authorId: "user_tiago",
-        caption: "A day in the life of a tech creator in Belém 💻🌴 Sunrise coding to sunset views.",
+        authorId: "user_tanvir",
+        caption: "Day in the life of a software engineer in Dhaka 💻☕ From morning standup to shipping clean code. #TechLife #DhakaDev #CodingVibes",
         videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-1164-large.mp4",
-        musicTitle: "Lo-Fi Beats - Amazon Sunset",
+        musicTitle: "Lo-Fi Beats - Dhaka Monsoon",
         likesCount: 3410,
         commentsCount: 215,
         sharesCount: 480,
@@ -328,8 +329,8 @@ const NetParaBackend = (function () {
       {
         id: "comm_1",
         postId: "post_1",
-        authorId: "user_tiago",
-        text: "The colors in Belém are unbeatable! Great capture Mariana 👏",
+        authorId: "user_tanvir",
+        text: "The golden hour in Bangladesh is truly unmatched! Great capture Sadia 👏",
         likesCount: 14,
         isLiked: false,
         parentId: null,
@@ -339,7 +340,7 @@ const NetParaBackend = (function () {
         id: "comm_2",
         postId: "post_1",
         authorId: "user_me",
-        text: "Was there this morning, the açai fresh from the islands was incredible!",
+        text: "The scenic riverbanks here are so tranquil, absolute peace of mind! 🌿",
         likesCount: 22,
         isLiked: true,
         parentId: null,
@@ -348,8 +349,8 @@ const NetParaBackend = (function () {
       {
         id: "comm_3",
         postId: "post_1",
-        authorId: "user_mariana",
-        text: "@anisur_tanvi Best combination in the world! 🙌",
+        authorId: "user_sadia",
+        text: "@anisur_tanvi Exactly! Best place to unwind after a productive week 🙌",
         likesCount: 9,
         isLiked: false,
         parentId: "comm_2",
@@ -359,14 +360,14 @@ const NetParaBackend = (function () {
     conversations: [
       {
         id: "conv_1",
-        participantId: "user_mariana",
-        lastMessage: "See you at the cultural festival on Saturday! 🎉",
+        participantId: "user_sadia",
+        lastMessage: "See you at the Tech Summit in Dhaka on Saturday! 🎉",
         timestamp: Date.now() - 1800000,
         unreadCount: 1
       },
       {
         id: "conv_2",
-        participantId: "user_tiago",
+        participantId: "user_tanvir",
         lastMessage: "Sent you the repository link for the new Android build.",
         timestamp: Date.now() - 86400000,
         unreadCount: 0
@@ -376,9 +377,9 @@ const NetParaBackend = (function () {
       {
         id: "msg_1",
         convId: "conv_1",
-        senderId: "user_mariana",
+        senderId: "user_sadia",
         receiverId: "user_me",
-        text: "Hey Alex! Are you going to the Estação das Docas festival this weekend?",
+        text: "Hey Tanvi! Are you going to the Tech Summit in Dhaka this weekend?",
         createdAt: Date.now() - 3600000 * 2,
         isRead: true
       },
@@ -386,17 +387,17 @@ const NetParaBackend = (function () {
         id: "msg_2",
         convId: "conv_1",
         senderId: "user_me",
-        receiverId: "user_mariana",
-        text: "Hey Mariana! Yes, definitely going around 5 PM.",
+        receiverId: "user_sadia",
+        text: "Hey Sadia! Yes, definitely going around 4 PM.",
         createdAt: Date.now() - 3600000 * 1.5,
         isRead: true
       },
       {
         id: "msg_3",
         convId: "conv_1",
-        senderId: "user_mariana",
+        senderId: "user_sadia",
         receiverId: "user_me",
-        text: "Awesome! See you at the cultural festival on Saturday! 🎉",
+        text: "Awesome! See you at the Tech Summit in Dhaka on Saturday! 🎉",
         createdAt: Date.now() - 1800000,
         isRead: false
       }
@@ -405,8 +406,8 @@ const NetParaBackend = (function () {
       {
         id: "notif_1",
         type: "like",
-        actorId: "user_mariana",
-        content: "liked your photo in Ilha do Combu",
+        actorId: "user_sadia",
+        content: "liked your post in Dhaka",
         targetId: "post_3",
         time: Date.now() - 3600000,
         isRead: false
@@ -414,17 +415,17 @@ const NetParaBackend = (function () {
       {
         id: "notif_2",
         type: "follow",
-        actorId: "user_tiago",
+        actorId: "user_tanvir",
         content: "started following you",
-        targetId: "user_tiago",
+        targetId: "user_tanvir",
         time: Date.now() - 3600000 * 5,
         isRead: false
       },
       {
         id: "notif_3",
         type: "comment",
-        actorId: "user_mariana",
-        content: "commented: 'Best combination in the world! 🙌'",
+        actorId: "user_sadia",
+        content: "commented: 'Best place to unwind after a productive week 🙌'",
         targetId: "post_1",
         time: Date.now() - 86400000,
         isRead: true
@@ -435,7 +436,7 @@ const NetParaBackend = (function () {
         id: "rep_101",
         targetType: "post",
         targetId: "post_2",
-        reporterId: "user_mariana",
+        reporterId: "user_sadia",
         category: "spam",
         details: "Automated link testing report",
         status: "pending",
@@ -445,8 +446,8 @@ const NetParaBackend = (function () {
     announcements: [
       {
         id: "anc_1",
-        title: "Welcome to NetPará 1.0!",
-        content: "Experience the fastest social connection network in Brazil. Explore reels, share posts, and connect with creators.",
+        title: "Welcome to NetPara!",
+        content: "Experience the fastest social network in Bangladesh. Explore reels, share posts, and connect with creators.",
         timestamp: Date.now() - 86400000 * 2
       }
     ]
@@ -587,7 +588,7 @@ const NetParaBackend = (function () {
       const target = db.users.find(u => u.uid === targetUid);
       if (!me || !target) return { isFollowing: false };
 
-      if (!me.followingList) me.followingList = ["user_mariana", "user_tiago"];
+      if (!me.followingList) me.followingList = ["user_sadia", "user_tanvir"];
       const isFollowing = me.followingList.includes(targetUid);
 
       if (isFollowing) {
@@ -628,7 +629,7 @@ const NetParaBackend = (function () {
     getMessages: (convId) => db.messages.filter(m => m.convId === convId),
     sendMessage: (convId, text, mediaUrl = null) => {
       const conv = db.conversations.find(c => c.id === convId);
-      const receiverId = conv ? conv.participantId : "user_mariana";
+      const receiverId = conv ? conv.participantId : "user_sadia";
       const msg = {
         id: "msg_" + Date.now(),
         convId,
@@ -746,7 +747,7 @@ const NetParaBackend = (function () {
           id: "notif_" + Date.now(),
           type: "friend_accept",
           actorId: req.fromUid,
-          content: `and you are now friends on NetPará! 🎉`,
+          content: `and you are now friends on NetPara! 🎉`,
           targetId: req.fromUid,
           time: Date.now(),
           isRead: false

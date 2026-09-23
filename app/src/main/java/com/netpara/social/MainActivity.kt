@@ -60,7 +60,7 @@ open class MainActivity : ComponentActivity() {
         if (isGranted) {
             notificationManager.showNotification(
                 1001,
-                "Welcome to NetPará",
+                "Welcome to NetPara",
                 "Notifications enabled! You will be alerted when friends interact with you.",
                 "system"
             )
@@ -88,8 +88,7 @@ open class MainActivity : ComponentActivity() {
         webView = WebView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                0,
-                1.0f
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
             setBackgroundColor(Color.parseColor("#0F172A"))
         }
@@ -97,13 +96,12 @@ open class MainActivity : ComponentActivity() {
         bannerContainer = FrameLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                0
             )
-            visibility = View.VISIBLE
+            visibility = View.GONE
         }
 
         rootLayout.addView(webView)
-        rootLayout.addView(bannerContainer)
 
         setContentView(rootLayout)
 
@@ -123,9 +121,6 @@ open class MainActivity : ComponentActivity() {
         webViewManager = WebViewManager(this, webView)
 
         webViewManager.setupWebView(webAppInterface)
-
-        // Load AdMob test banner ad
-        adManager.loadBanner(bannerContainer)
 
         // Listen for Network State changes
         networkManager.onStatusChanged = { isConnected, connectionType ->
@@ -194,17 +189,11 @@ open class MainActivity : ComponentActivity() {
     }
 
     fun showBannerAd() {
-        runOnUiThread {
-            bannerContainer.visibility = View.VISIBLE
-            adManager.loadBanner(bannerContainer)
-        }
+        // Ads removed - full screen experience
     }
 
     fun hideBannerAd() {
-        runOnUiThread {
-            bannerContainer.removeAllViews()
-            bannerContainer.visibility = View.GONE
-        }
+        // Ads removed - full screen experience
     }
 
     override fun onResume() {

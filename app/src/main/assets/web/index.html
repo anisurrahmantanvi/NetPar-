@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0F172A">
-  <title>NetPará</title>
+  <title>NetPara</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark.css">
   <link rel="stylesheet" href="css/responsive.css">
@@ -26,7 +26,7 @@
             </linearGradient>
           </defs>
         </svg>
-        <span class="brand-title">NetPará</span>
+        <span class="brand-title">NetPara</span>
       </div>
 
       <div class="network-pill" id="top-network-pill">
@@ -49,10 +49,6 @@
 
       <!-- View: Home Feed -->
       <section class="view-page active" id="view-feed">
-        <div class="feed-header-tabs">
-          <button class="feed-tab active" id="tab-foryou" onclick="NetParaFeed.setTab('foryou')">For You</button>
-          <button class="feed-tab" id="tab-following" onclick="NetParaFeed.setTab('following')">Following</button>
-        </div>
 
         <!-- Stories Carousel -->
         <div class="stories-container" id="stories-track"></div>
@@ -247,7 +243,7 @@
             </div>
             <div class="menu-shortcut-card" onclick="NetParaSettings.openPremiumModal()">
               <div class="shortcut-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">👑</div>
-              <div class="shortcut-title">NetPará Gold</div>
+              <div class="shortcut-title">NetPara Gold</div>
               <div class="shortcut-desc">VIP Status & Ad-Free</div>
             </div>
             <div class="menu-shortcut-card" id="menu-shortcut-admin" style="display: none;" onclick="NetParaAdmin.open()">
@@ -342,11 +338,11 @@
 
               <div class="faq-item">
                 <div class="faq-q" onclick="NetParaMenu.showFaqAnswer(2)">
-                  <span>How do I unlock NetPará Gold / VIP?</span>
+                  <span>How do I unlock NetPara Gold / VIP?</span>
                   <span id="faq-icon-2">▼</span>
                 </div>
                 <div class="faq-a" id="faq-ans-2" style="display: none;">
-                  Tap on "NetPará Gold" in the shortcuts menu and watch a short rewarded video ad to unlock 24 hours of VIP verification and ad-free experience.
+                  Tap on "NetPara Gold" in the shortcuts menu to activate VIP verification and ad-free experience instantly for free.
                 </div>
               </div>
 
@@ -372,7 +368,7 @@
               <span class="menu-chevron">›</span>
             </div>
 
-            <div class="menu-item-row" onclick="alert('NetPará Community Standards:\n• Treat all members with respect.\n• No hate speech, harassment, or spam.\n• Celebrate local creativity and authentic culture.')">
+            <div class="menu-item-row" onclick="alert('NetPara Community Standards:\n• Treat all members with respect.\n• No hate speech, harassment, or spam.\n• Celebrate local creativity and authentic culture.')">
               <div class="menu-item-left">
                 <span class="menu-item-icon">📜</span>
                 <div>
@@ -383,7 +379,7 @@
               <span class="menu-chevron">›</span>
             </div>
 
-            <div class="menu-item-row" onclick="alert('Privacy Policy:\nNetPará respects your personal data. We do not sell your personal information. Content you share publicly can be viewed by other NetPará users.')">
+            <div class="menu-item-row" onclick="alert('Privacy Policy:\nNetPara respects your personal data. We do not sell your personal information. Content you share publicly can be viewed by other NetPara users.')">
               <div class="menu-item-left">
                 <span class="menu-item-icon">🛡️</span>
                 <div>
@@ -397,8 +393,8 @@
 
           <!-- App Version & Info -->
           <div class="menu-app-info">
-            <div>NetPará Android • v1.0.0 (Build 36)</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Made with ❤️ for Pará & the Amazon</div>
+            <div>NetPara Android • v1.0.0</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Made with ❤️ for Bangladesh 🇧🇩</div>
           </div>
 
           <!-- Logout Button -->
@@ -455,8 +451,8 @@
       <div class="onboarding-icon-card">
         <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
       </div>
-      <h1 class="onboarding-title">Welcome to NetPará</h1>
-      <p class="onboarding-desc">Connect with creators, friends and the vibrant culture of Pará. Share photos, watch high-speed reels, and chat seamlessly.</p>
+      <h1 class="onboarding-title">Welcome to NetPara</h1>
+      <p class="onboarding-desc">Connect with creators, friends and the vibrant culture of Bangladesh. Share photos, watch high-speed reels, and chat seamlessly.</p>
     </div>
     <div style="width: 100%; max-width: 400px; margin: 0 auto;">
       <div class="onboarding-dots">
@@ -473,7 +469,7 @@
     <div class="bottom-sheet-card" style="max-height: 90vh;">
       <div class="sheet-handle-bar"></div>
       <div class="sheet-header">
-        <div style="font-weight: 800; font-size: 1.2rem;">NetPará Account</div>
+        <div style="font-weight: 800; font-size: 1.2rem;">NetPara Account</div>
       </div>
       <div class="sheet-body">
         <div style="display: flex; gap: 8px; margin-bottom: 20px;">
@@ -504,15 +500,15 @@
         <div id="form-signup" style="display: none;">
           <div class="form-group">
             <label class="form-label">Full Name</label>
-            <input type="text" id="signup-fullname" class="form-input" placeholder="Maria Santos" />
+            <input type="text" id="signup-fullname" class="form-input" placeholder="Sadia Islam" />
           </div>
           <div class="form-group">
             <label class="form-label">Username</label>
-            <input type="text" id="signup-username" class="form-input" placeholder="maria_santos" />
+            <input type="text" id="signup-username" class="form-input" placeholder="sadia_islam" />
           </div>
           <div class="form-group">
             <label class="form-label">Email Address</label>
-            <input type="email" id="signup-email" class="form-input" placeholder="maria@example.com" />
+            <input type="email" id="signup-email" class="form-input" placeholder="sadia@example.com" />
           </div>
           <div class="form-group">
             <label class="form-label">Password</label>
@@ -534,7 +530,7 @@
         <button class="btn-primary" id="btn-publish-post" onclick="NetParaPosts.publish()" style="padding: 8px 16px; font-size: 0.88rem;">Post</button>
       </div>
       <div class="sheet-body">
-        <textarea id="composer-textarea" class="form-input" style="width: 100%; height: 110px; resize: none; border: none;" placeholder="What are you thinking? Share with Pará..."></textarea>
+        <textarea id="composer-textarea" class="form-input" style="width: 100%; height: 110px; resize: none; border: none;" placeholder="What are you thinking? Share with NetPara..."></textarea>
 
         <div id="composer-upload-progress" style="display: none; font-size: 0.8rem; color: var(--primary); margin: 6px 0;">Compressing and uploading media...</div>
 
@@ -543,10 +539,10 @@
 
         <!-- Quick Hashtags -->
         <div style="display: flex; gap: 6px; overflow-x: auto; padding: 8px 0;">
-          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#NetPará')">#NetPará</button>
-          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Amazonia')">#Amazonia</button>
-          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Belem')">#Belem</button>
-          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Culinaria')">#Culinaria</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#NetPara')">#NetPara</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Bangladesh')">#Bangladesh</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Dhaka')">#Dhaka</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#BanglaTech')">#BanglaTech</button>
         </div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--surface-border); padding-top: 12px; margin-top: 10px;">
@@ -555,7 +551,7 @@
               <input type="file" id="composer-file-input" accept="image/*,video/*" multiple style="display: none;" onchange="NetParaPosts.handleFileSelect(event)" />
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
             </label>
-            <button class="icon-btn" onclick="NetParaPosts.addEmoji('🌴')">🌴</button>
+            <button class="icon-btn" onclick="NetParaPosts.addEmoji('🇧🇩')">🇧🇩</button>
             <button class="icon-btn" onclick="NetParaPosts.addEmoji('✨')">✨</button>
             <button class="icon-btn" onclick="NetParaPosts.addEmoji('🔥')">🔥</button>
             <button class="icon-btn" onclick="NetParaPosts.addEmoji('❤️')">❤️</button>
@@ -705,20 +701,20 @@
     </div>
   </div>
 
-  <!-- Premium Ad Reward Modal -->
+  <!-- Premium VIP Modal -->
   <div id="premium-modal" class="modal-overlay">
     <div class="bottom-sheet-card">
       <div class="sheet-handle-bar"></div>
       <div class="sheet-header">
-        <span class="sheet-title">NetPará Gold</span>
+        <span class="sheet-title">NetPara Gold VIP</span>
         <button class="icon-btn" onclick="NetParaSettings.closePremiumModal()">✕</button>
       </div>
       <div class="sheet-body" style="text-align: center;">
         <div style="font-size: 3rem; margin: 10px 0;">👑</div>
         <h3 style="font-size: 1.3rem;">Elevate Your Experience</h3>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 8px 0 20px 0;">Enjoy zero advertisements, instant gold verification badge, and boosted content discovery.</p>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 8px 0 20px 0;">Enjoy zero advertisements, instant verified VIP badge, and boosted content discovery across Bangladesh.</p>
         <button class="btn-primary" style="width: 100%; padding: 14px;" onclick="NetParaSettings.watchRewardedForGold()">
-          🎬 Watch Ad to Unlock Gold 24h
+          ✨ Activate Gold VIP Access (Free)
         </button>
       </div>
     </div>

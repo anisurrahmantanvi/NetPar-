@@ -49,7 +49,7 @@ const NetParaFeed = (function () {
       container.innerHTML = `
         <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
           <h3>No posts yet</h3>
-          <p style="margin-top: 8px;">Be the first to share an update with the NetPará community!</p>
+          <p style="margin-top: 8px;">Be the first to share an update with the NetPara community!</p>
         </div>
       `;
       return;
@@ -57,7 +57,7 @@ const NetParaFeed = (function () {
 
     container.innerHTML = posts.map(post => {
       const author = NetParaBackend.getUser(post.authorId) || {
-        fullName: "NetPará User",
+        fullName: "NetPara User",
         username: "user",
         avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
         isVerified: false
@@ -223,12 +223,12 @@ const NetParaFeed = (function () {
     sharePost: (postId) => {
       const posts = NetParaBackend.getPosts();
       const p = posts.find(x => x.id === postId);
-      const text = p ? p.content.substring(0, 100) + "..." : "Check out this post on NetPará!";
+      const text = p ? p.content.substring(0, 100) + "..." : "Check out this post on NetPara!";
       const url = "https://netpara.social/p/" + postId;
       if (window.NetParaNative && window.NetParaNative.shareContent) {
-        window.NetParaNative.shareContent("NetPará Post", text, url);
+        window.NetParaNative.shareContent("NetPara Post", text, url);
       } else if (navigator.share) {
-        navigator.share({ title: "NetPará", text, url }).catch(() => {});
+        navigator.share({ title: "NetPara", text, url }).catch(() => {});
       } else {
         alert("Link copied: " + url);
       }

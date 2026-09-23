@@ -99,7 +99,7 @@ class WebAppInterface(private val activity: MainActivity) {
                 putExtra(Intent.EXTRA_SUBJECT, title)
                 putExtra(Intent.EXTRA_TEXT, "$text\n$url".trim())
             }
-            activity.startActivity(Intent.createChooser(shareIntent, "Share via NetPará"))
+            activity.startActivity(Intent.createChooser(shareIntent, "Share via NetPara"))
         }
     }
 
@@ -134,7 +134,7 @@ class WebAppInterface(private val activity: MainActivity) {
         json.put("platform", "Android")
         json.put("osVersion", Build.VERSION.RELEASE)
         json.put("sdkInt", Build.VERSION.SDK_INT)
-        json.put("appName", "NetPará")
+        json.put("appName", "NetPara")
         json.put("versionName", "1.0.0")
         return json.toString()
     }
