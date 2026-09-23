@@ -31,6 +31,9 @@ const NetParaApp = (function () {
     NetParaFeed.init();
     NetParaNotifications.init();
     NetParaChat.init();
+    if (window.NetParaCall) {
+      NetParaCall.init();
+    }
     updateGlobalBadges();
 
     // Check device info from native bridge
@@ -318,6 +321,14 @@ window.onRewardedAdSuccess = function (amount, type) {
 };
 
 window.handleAppBackPressed = function () {
+  // If call is active or ringing
+  if (window.NetParaCall && window.NetParaCall.getActiveCall()) {
+    if (confirm("End current call?")) {
+      window.NetParaCall.endCall('ended');
+    }
+    return true;
+  }
+
   // If any open modal exists, close it
   const openModals = document.querySelectorAll(".modal-overlay.open");
   if (openModals.length > 0) {

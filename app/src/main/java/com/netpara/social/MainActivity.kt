@@ -32,6 +32,35 @@ open class MainActivity : ComponentActivity() {
     lateinit var notificationManager: NotificationManager
     lateinit var networkManager: NetworkManager
     lateinit var webAppInterface: WebAppInterface
+    lateinit var callAudioManager: CallAudioManager
+
+    private var pendingCallPermissionCallback: ((Boolean) -> Unit)? = null
+
+    private val callPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val recordAudioGranted = permissions[Manifest.permission.RECORD_AUDIO] ?: false
+        val cameraGranted = permissions[Manifest.permission.CAMERA] ?: true
+        val granted = recordAudioGranted
+        pendingCallPermissionCallback?.invoke(granted)
+        pendingCallPermissionCallback = null
+    }
+
+    fun requestCallPermissions(isVideo: Boolean, onResult: (Boolean) -> Unit) {
+        val permissions = mutableListOf(Manifest.permission.RECORD_AUDIO)
+        if (isVideo) {
+            permissions.add(Manifest.permission.CAMERA)
+        }
+        val missing = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (missing.isEmpty()) {
+            onResult(true)
+        } else {
+            pendingCallPermissionCallback = onResult
+            callPermissionsLauncher.launch(missing.toTypedArray())
+        }
+    }
 
     private val fileChooserLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -114,6 +143,7 @@ open class MainActivity : ComponentActivity() {
         }
 
         // Initialize Managers
+        callAudioManager = CallAudioManager(this)
         notificationManager = NotificationManager(this)
         networkManager = NetworkManager(this)
         adManager = AdManager(this)
@@ -150,6 +180,29 @@ open class MainActivity : ComponentActivity() {
 
         // Request notification permission on Android 13+
         requestNotificationPermissionIfNeeded()
+
+        // Check for incoming call intent
+        handleCallIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleCallIntent(intent)
+    }
+
+    private fun handleCallIntent(intent: Intent?) {
+        val action = intent?.getStringExtra("action")
+        if (action == "incoming_call") {
+            val callId = intent.getStringExtra("callId") ?: ""
+            val callerName = intent.getStringExtra("callerName") ?: ""
+            val callerUid = intent.getStringExtra("callerUid") ?: ""
+            val callType = intent.getStringExtra("callType") ?: "voice"
+            val callerAvatar = intent.getStringExtra("callerAvatar") ?: ""
+            webViewManager.executeJs(
+                "window.NetParaCall && window.NetParaCall.handleIncomingNotification('$callId', '$callerUid', '$callerName', '$callType', '$callerAvatar');"
+            )
+        }
     }
 
     fun launchFileChooser(params: WebChromeClient.FileChooserParams?) {
@@ -207,6 +260,9 @@ open class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        if (::callAudioManager.isInitialized) {
+            callAudioManager.endCallAudio()
+        }
         networkManager.stopListening()
         webViewManager.onDestroy()
         super.onDestroy()

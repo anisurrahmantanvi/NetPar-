@@ -1,0 +1,507 @@
+/* ==========================================================================
+   NetPara 1-to-1 WebRTC Voice & Video Call Styles
+   Premium Dark Glassmorphic Design for Android 10+
+   ========================================================================== */
+
+/* Main Fullscreen Call Container */
+.call-overlay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #090D16;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  font-family: inherit;
+  user-select: none;
+  touch-action: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.call-overlay-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Background Ambient Lighting */
+.call-ambient-glow {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 1;
+  animation: glowPulse 4s infinite alternate ease-in-out;
+}
+
+.call-ambient-glow.top-glow {
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, #4F46E5, #06B6D4);
+}
+
+.call-ambient-glow.bottom-glow {
+  bottom: -100px;
+  right: -50px;
+  background: radial-gradient(circle, #10B981, #3B82F6);
+}
+
+@keyframes glowPulse {
+  0% { transform: translateX(-50%) scale(0.9); opacity: 0.25; }
+  100% { transform: translateX(-50%) scale(1.15); opacity: 0.45; }
+}
+
+/* Video Containers */
+.video-canvas-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background: #05070B;
+}
+
+.remote-video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.local-pip-container {
+  position: absolute;
+  top: 48px;
+  right: 16px;
+  width: 110px;
+  height: 165px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 0 1.5px rgba(255, 255, 255, 0.18);
+  background: #111827;
+  z-index: 20;
+  cursor: pointer;
+  transition: transform 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+
+.local-pip-container:active {
+  transform: scale(0.96);
+}
+
+.local-video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror local front camera */
+  display: block;
+}
+
+.local-pip-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  border-radius: 6px;
+  font-size: 0.65rem;
+  color: #FFF;
+  font-weight: 600;
+}
+
+/* Call Top Bar HUD */
+.call-top-hud {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 44px 18px 12px 18px;
+  background: linear-gradient(180deg, rgba(9, 13, 22, 0.85) 0%, transparent 100%);
+}
+
+.call-meta-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.call-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  width: fit-content;
+}
+
+.call-status-timer {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #10B981;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.call-network-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: #34D399;
+  font-weight: 600;
+}
+
+.call-network-badge.poor {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #F87171;
+}
+
+.call-network-badge.reconnecting {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #FBBF24;
+}
+
+/* Middle Profile Focus (For Voice Calls & Outgoing Calling) */
+.call-center-focus {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.call-avatar-outer-ring {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.call-avatar-ripple {
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  border: 2px solid rgba(99, 102, 241, 0.4);
+  animation: radarRipple 2s infinite ease-out;
+}
+
+.call-avatar-ripple:nth-child(2) {
+  animation-delay: 0.7s;
+}
+
+@keyframes radarRipple {
+  0% { transform: scale(0.85); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.call-profile-avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 5;
+}
+
+.call-peer-name {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #F8FAFC;
+  margin: 0;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.call-peer-handle {
+  font-size: 0.92rem;
+  color: #94A3B8;
+  margin-top: 4px;
+}
+
+.call-state-text {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #818CF8;
+  margin-top: 14px;
+  letter-spacing: 0.2px;
+}
+
+/* Sound Waves Animation for Voice Calls */
+.sound-waves-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 36px;
+  margin-top: 20px;
+}
+
+.sound-wave-bar {
+  width: 4px;
+  height: 10px;
+  background: #6366F1;
+  border-radius: 4px;
+  animation: waveBar 1.2s infinite ease-in-out alternate;
+}
+
+.sound-wave-bar:nth-child(2) { animation-delay: 0.15s; height: 18px; }
+.sound-wave-bar:nth-child(3) { animation-delay: 0.3s; height: 26px; }
+.sound-wave-bar:nth-child(4) { animation-delay: 0.45s; height: 32px; }
+.sound-wave-bar:nth-child(5) { animation-delay: 0.2s; height: 22px; }
+.sound-wave-bar:nth-child(6) { animation-delay: 0.35s; height: 14px; }
+
+@keyframes waveBar {
+  0% { transform: scaleY(0.4); opacity: 0.4; }
+  100% { transform: scaleY(1.3); opacity: 1; background: #10B981; }
+}
+
+/* Bottom Controls Dock */
+.call-bottom-dock {
+  position: relative;
+  z-index: 30;
+  padding: 16px 20px 48px 20px;
+  background: linear-gradient(0deg, rgba(9, 13, 22, 0.95) 0%, rgba(9, 13, 22, 0.6) 80%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.call-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Circular Call Action Button */
+.call-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  color: #FFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.call-btn:active {
+  transform: scale(0.9);
+}
+
+.call-btn.active {
+  background: #FFF;
+  color: #0F172A;
+}
+
+.call-btn.muted {
+  background: rgba(239, 68, 68, 0.25);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.call-btn-label {
+  font-size: 0.68rem;
+  color: #CBD5E1;
+  margin-top: 4px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Accept & End Buttons */
+.call-btn-accept {
+  width: 68px;
+  height: 68px;
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #FFF;
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5);
+  animation: acceptPulse 1.8s infinite;
+}
+
+@keyframes acceptPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  70% { box-shadow: 0 0 0 16px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.call-btn-decline, .call-btn-end {
+  width: 68px;
+  height: 68px;
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: #FFF;
+  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.5);
+}
+
+/* Incoming Call Floating Sheet / Banner */
+.incoming-call-modal {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.3);
+  z-index: 100000;
+  animation: slideInDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInDown {
+  from { transform: translateY(-120%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.incoming-call-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.incoming-call-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #6366F1;
+}
+
+.incoming-call-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.incoming-btn-small {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s;
+}
+
+.incoming-btn-small:active {
+  transform: scale(0.9);
+}
+
+.incoming-btn-decline {
+  background: #EF4444;
+  color: #FFF;
+}
+
+.incoming-btn-accept {
+  background: #10B981;
+  color: #FFF;
+}
+
+/* Call History Card in Messages/Activity */
+.call-log-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--surface-border);
+  transition: background 0.15s;
+}
+
+.call-log-item:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.call-log-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.call-log-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.call-log-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.call-log-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.call-log-details {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.call-log-details.missed {
+  color: #EF4444;
+}
+
+.call-quick-btn {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

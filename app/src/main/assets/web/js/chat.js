@@ -95,6 +95,93 @@ const NetParaChat = (function () {
       renderConversationsList();
     },
 
+    startVoiceCall: () => {
+      const conv = NetParaBackend.getConversations().find(c => c.id === activeConvId);
+      if (conv && conv.participantId) {
+        NetParaCall.startCall(conv.participantId, 'voice');
+      }
+    },
+
+    startVideoCall: () => {
+      const conv = NetParaBackend.getConversations().find(c => c.id === activeConvId);
+      if (conv && conv.participantId) {
+        NetParaCall.startCall(conv.participantId, 'video');
+      }
+    },
+
+    switchTab: (tab) => {
+      const msgsTab = document.getElementById("chat-tab-messages");
+      const callsTab = document.getElementById("chat-tab-calls");
+      const convList = document.getElementById("conversations-list");
+      const callsList = document.getElementById("calls-list");
+      if (tab === 'calls') {
+        if (msgsTab) msgsTab.classList.remove("active");
+        if (callsTab) callsTab.classList.add("active");
+        if (convList) convList.style.display = "none";
+        if (callsList) {
+          callsList.style.display = "block";
+          NetParaChat.renderCallsList();
+        }
+      } else {
+        if (msgsTab) msgsTab.classList.add("active");
+        if (callsTab) callsTab.classList.remove("active");
+        if (convList) convList.style.display = "block";
+        if (callsList) callsList.style.display = "none";
+      }
+    },
+
+    renderCallsList: () => {
+      const callsList = document.getElementById("calls-list");
+      if (!callsList) return;
+      const calls = NetParaBackend.getCallHistory();
+
+      if (calls.length === 0) {
+        callsList.innerHTML = `
+          <div style="padding: 40px 20px; text-align: center; color: var(--text-muted);">
+            <div style="font-size: 2.2rem; margin-bottom: 8px;">📞</div>
+            <div style="font-weight: 700; color: var(--text);">No calls yet</div>
+            <div style="font-size: 0.85rem; margin-top: 4px;">Make your first HD voice or video call with friends on NetPara!</div>
+          </div>
+        `;
+        return;
+      }
+
+      callsList.innerHTML = calls.map(c => {
+        const isMissed = c.status === 'missed';
+        const isOut = c.direction === 'outgoing';
+        const isVideo = c.type === 'video';
+        const durationText = c.duration > 0 ? `${Math.floor(c.duration / 60)}m ${c.duration % 60}s` : (isMissed ? 'Missed call' : 'Cancelled');
+        const iconSvg = isVideo
+          ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`
+          : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
+
+        const directionArrow = isMissed
+          ? `<span style="color: #EF4444; font-weight: bold;">↙</span>`
+          : (isOut ? `<span style="color: #10B981;">↗</span>` : `<span style="color: #3B82F6;">↙</span>`);
+
+        const timeStr = new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        return `
+          <div class="call-log-item">
+            <div class="call-log-left">
+              <img class="call-log-avatar" src="${c.peerAvatar}" alt="${c.peerName}" />
+              <div class="call-log-meta">
+                <div class="call-log-name">${c.peerName}</div>
+                <div class="call-log-details ${isMissed ? 'missed' : ''}">
+                  ${directionArrow} ${iconSvg} ${durationText} • ${timeStr}
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="call-quick-btn" onclick="NetParaCall.startCall('${c.peerUid}', '${c.type}')" title="Call back">
+                ${iconSvg}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    },
+
     openDirectChat: (targetUid) => {
       const db = NetParaBackend.getDb();
       let conv = db.conversations.find(c => c.participantId === targetUid);

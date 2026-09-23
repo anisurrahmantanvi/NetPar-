@@ -138,4 +138,60 @@ class WebAppInterface(private val activity: MainActivity) {
         json.put("versionName", "1.0.0")
         return json.toString()
     }
+
+    @JavascriptInterface
+    fun requestCallPermissions(isVideo: Boolean, callbackFunction: String) {
+        activity.runOnUiThread {
+            activity.requestCallPermissions(isVideo) { granted ->
+                activity.webViewManager.executeJs("$callbackFunction($granted);")
+            }
+        }
+    }
+
+    @JavascriptInterface
+    fun startCallAudio(isVideo: Boolean) {
+        activity.runOnUiThread {
+            activity.callAudioManager.startCallAudio(isVideo)
+        }
+    }
+
+    @JavascriptInterface
+    fun setSpeakerphone(enabled: Boolean) {
+        activity.runOnUiThread {
+            activity.callAudioManager.setSpeakerphone(enabled)
+        }
+    }
+
+    @JavascriptInterface
+    fun setMicrophoneMute(muted: Boolean) {
+        activity.runOnUiThread {
+            activity.callAudioManager.setMicrophoneMute(muted)
+        }
+    }
+
+    @JavascriptInterface
+    fun endCallAudio() {
+        activity.runOnUiThread {
+            activity.callAudioManager.endCallAudio()
+        }
+    }
+
+    @JavascriptInterface
+    fun playCallRingtone(isIncoming: Boolean) {
+        activity.runOnUiThread {
+            activity.callAudioManager.playRingtone(isIncoming)
+        }
+    }
+
+    @JavascriptInterface
+    fun stopCallRingtone() {
+        activity.runOnUiThread {
+            activity.callAudioManager.stopRingtone()
+        }
+    }
+
+    @JavascriptInterface
+    fun getFcmToken(): String {
+        return prefs.getString("fcm_token", "") ?: ""
+    }
 }

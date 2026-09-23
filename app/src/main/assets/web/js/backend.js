@@ -450,6 +450,41 @@ const NetParaBackend = (function () {
         content: "Experience the fastest social network in Bangladesh. Explore reels, share posts, and connect with creators.",
         timestamp: Date.now() - 86400000 * 2
       }
+    ],
+    callHistory: [
+      {
+        id: "call_log_1",
+        peerUid: "user_sadia",
+        peerName: "Sadia Islam",
+        peerAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+        type: "video",
+        direction: "incoming",
+        status: "completed",
+        duration: 184,
+        timestamp: Date.now() - 3600000 * 3
+      },
+      {
+        id: "call_log_2",
+        peerUid: "user_tanvir",
+        peerName: "Tanvir Ahmed",
+        peerAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        type: "voice",
+        direction: "outgoing",
+        status: "completed",
+        duration: 95,
+        timestamp: Date.now() - 86400000 * 1.5
+      },
+      {
+        id: "call_log_3",
+        peerUid: "user_rahim",
+        peerName: "Rahim Chowdhury",
+        peerAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        type: "voice",
+        direction: "incoming",
+        status: "missed",
+        duration: 0,
+        timestamp: Date.now() - 86400000 * 2
+      }
     ]
   };
 
@@ -465,6 +500,9 @@ const NetParaBackend = (function () {
       currentData = JSON.parse(JSON.stringify(defaultDatabase));
       saveDb(currentData);
       return currentData;
+    }
+    if (!currentData.callHistory) {
+      currentData.callHistory = JSON.parse(JSON.stringify(defaultDatabase.callHistory));
     }
     // Guarantee user_me is updated to Anisur Rahman (Tanvi)
     const me = currentData.users.find(u => u.uid === "user_me");
@@ -851,6 +889,34 @@ const NetParaBackend = (function () {
         target.friendsList = target.friendsList.filter(id => id !== "user_me");
         target.friendsCount = Math.max(0, (target.friendsCount || 1) - 1);
       }
+      saveDb(db);
+      return true;
+    },
+
+    getCallHistory: () => {
+      return (db.callHistory || []).sort((a, b) => b.timestamp - a.timestamp);
+    },
+
+    saveCallRecord: (record) => {
+      if (!db.callHistory) db.callHistory = [];
+      db.callHistory.unshift(record);
+      saveDb(db);
+
+      // Also persist to Firestore if available
+      if (window.firebase && window.firebase.firestore && window.NetParaFirebaseDb) {
+        try {
+          window.NetParaFirebaseDb.collection('call_history').add({
+            ...record,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(e => console.warn("Firestore call log error:", e));
+        } catch (_) {}
+      }
+      return record;
+    },
+
+    deleteCallRecord: (recordId) => {
+      if (!db.callHistory) return;
+      db.callHistory = db.callHistory.filter(r => r.id !== recordId);
       saveDb(db);
       return true;
     }
