@@ -89,8 +89,8 @@ open class MainActivity : ComponentActivity() {
         if (isGranted) {
             notificationManager.showNotification(
                 1001,
-                "Welcome to NetPara",
-                "Notifications enabled! You will be alerted when friends interact with you.",
+                "Welcome to iConnecto",
+                "Notifications enabled! Connect. Share. Belong.",
                 "system"
             )
         }

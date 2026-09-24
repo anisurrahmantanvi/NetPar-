@@ -1,11 +1,12 @@
-/* NetPará Design System - Core Theme & Styles */
+/* iConnecto Design System - Core Theme & Styles */
 :root {
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
-  --primary-light: #EEF2FF;
-  --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%);
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-light: #EFF6FF;
+  --primary-gradient: linear-gradient(135deg, #00B4D8 0%, #2563EB 50%, #8B5CF6 100%);
   --accent-rose: #F43F5E;
   --accent-cyan: #06B6D4;
+  --accent-purple: #8B5CF6;
   --accent-gold: #F59E0B;
   --success: #10B981;
   --warning: #F59E0B;

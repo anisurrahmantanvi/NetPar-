@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "NetPara"
+rootProject.name = "iConnecto"
 
 include(":app")

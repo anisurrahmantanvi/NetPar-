@@ -242,6 +242,54 @@ const NetParaApp = (function () {
       }
     },
 
+    openShareModal: () => {
+      const modal = document.getElementById("share-app-modal");
+      if (modal) modal.classList.add("open");
+    },
+
+    closeShareModal: () => {
+      const modal = document.getElementById("share-app-modal");
+      if (modal) modal.classList.remove("open");
+    },
+
+    copyShareLink: () => {
+      const link = document.getElementById("share-link-input")?.value || "https://ais-pre-czpha2xhfpu3xecmg3uwy5-662286982624.asia-east1.run.app";
+      if (window.NetParaNative && window.NetParaNative.copyToClipboard) {
+        window.NetParaNative.copyToClipboard(link);
+        window.NetParaNative.showToast("লিংক কপি হয়েছে! বন্ধুদের পাঠিয়ে দিন 🎉");
+      } else {
+        navigator.clipboard?.writeText(link).then(() => {
+          if (window.NetParaNative) {
+            window.NetParaNative.showToast("লিংক কপি হয়েছে!");
+          } else {
+            alert("লিংক কপি হয়েছে! বন্ধুদের সাথে শেয়ার করুন 🎉");
+          }
+        }).catch(() => {
+          prompt("লিংকটি কপি করে বন্ধুদের পাঠান:", link);
+        });
+      }
+    },
+
+    shareToWhatsApp: () => {
+      const link = "https://ais-pre-czpha2xhfpu3xecmg3uwy5-662286982624.asia-east1.run.app";
+      const text = encodeURIComponent(`iConnecto — Connect. Share. Belong. 🚀\nআমার সাথে iConnecto সোশ্যাল অ্যাপে যুক্ত হও! লাইভ পোস্ট, রিয়েলটাইম চ্যাট ও এইচডি ভিডিও কল করতে লিংক:\n${link}`);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    },
+
+    triggerNativeShare: () => {
+      const link = "https://ais-pre-czpha2xhfpu3xecmg3uwy5-662286982624.asia-east1.run.app";
+      const shareData = {
+        title: "iConnecto - Connect. Share. Belong.",
+        text: "iConnecto সোশ্যাল নেটওয়ার্কে আমার সাথে যুক্ত হও! পোস্ট, চ্যাট ও এইচডি কলিং:",
+        url: link
+      };
+      if (navigator.share) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        NetParaApp.copyShareLink();
+      }
+    },
+
     openReportModal: (type, id) => {
       reportTarget = { type, id };
       const modal = document.getElementById("report-modal");

@@ -39,13 +39,13 @@ class NetParaMessagingService : FirebaseMessagingService() {
             if (type == "incoming_call" || type == "call_signal") {
                 handleIncomingCallNotification(data)
             } else {
-                val title = data["title"] ?: remoteMessage.notification?.title ?: "NetPara"
+                val title = data["title"] ?: remoteMessage.notification?.title ?: "iConnecto"
                 val body = data["body"] ?: remoteMessage.notification?.body ?: "New activity"
                 showStandardNotification(title, body)
             }
         } else {
             remoteMessage.notification?.let {
-                showStandardNotification(it.title ?: "NetPara", it.body ?: "")
+                showStandardNotification(it.title ?: "iConnecto", it.body ?: "")
             }
         }
     }
@@ -82,7 +82,7 @@ class NetParaMessagingService : FirebaseMessagingService() {
         val builder = NotificationCompat.Builder(this, CALL_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_phone_call)
             .setContentTitle("Incoming $callType Call")
-            .setContentText("$callerName is calling you on NetPara")
+            .setContentText("$callerName is calling you on iConnecto")
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setAutoCancel(true)

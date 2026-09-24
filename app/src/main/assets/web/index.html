@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0F172A">
-  <title>NetPara</title>
+  <title>iConnecto - Connect. Share. Belong.</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark.css">
   <link rel="stylesheet" href="css/responsive.css">
@@ -16,26 +16,19 @@
     <!-- Top Navigation Bar -->
     <header class="top-bar">
       <div class="brand-wrapper" onclick="NetParaApp.navigate('feed')">
-        <svg class="brand-logo-img" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100" height="100" rx="28" fill="url(#brandGrad)"/>
-          <path d="M28 72V28L54 54V28H72V72L46 46V72H28Z" fill="white"/>
-          <circle cx="72" cy="28" r="6" fill="#06B6D4"/>
-          <defs>
-            <linearGradient id="brandGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#4F46E5"/>
-              <stop offset="1" stop-color="#06B6D4"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <span class="brand-title">NetPara</span>
+        <img src="img/iconnecto_icon.png" alt="iConnecto" class="brand-logo-img" style="width: 32px; height: 32px; border-radius: 9px; object-fit: cover; box-shadow: 0 2px 8px rgba(37,99,235,0.4);" />
+        <span class="brand-title">iConnecto</span>
       </div>
 
-      <div class="network-pill" id="top-network-pill">
+      <div class="network-pill" id="top-network-pill" onclick="NetParaSettings.openFirebaseModal()" style="cursor: pointer;" title="ফায়ারবেস ক্লাউড স্ট্যাটাস">
         <span class="network-dot"></span>
         <span id="top-network-label">Online</span>
       </div>
 
       <div class="top-bar-actions">
+        <button class="icon-btn" onclick="NetParaApp.openShareModal()" aria-label="Share with Friends" title="বন্ধুদের সাথে শেয়ার করুন" style="color: #10B981;">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+        </button>
         <button class="icon-btn" onclick="NetParaPosts.openComposer()" aria-label="Create Post" style="color: var(--primary);">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
@@ -259,8 +252,13 @@
             </div>
             <div class="menu-shortcut-card" onclick="NetParaSettings.openPremiumModal()">
               <div class="shortcut-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">👑</div>
-              <div class="shortcut-title">NetPara Gold</div>
+              <div class="shortcut-title">iConnecto VIP</div>
               <div class="shortcut-desc">VIP Status & Ad-Free</div>
+            </div>
+            <div class="menu-shortcut-card" onclick="NetParaApp.openShareModal()">
+              <div class="shortcut-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">🚀</div>
+              <div class="shortcut-title">Share App</div>
+              <div class="shortcut-desc">Invite friends online</div>
             </div>
             <div class="menu-shortcut-card" id="menu-shortcut-admin" style="display: none;" onclick="NetParaAdmin.open()">
               <div class="shortcut-icon" style="background: rgba(239, 68, 68, 0.12); color: var(--danger);">🛡️</div>
@@ -365,11 +363,11 @@
 
               <div class="faq-item">
                 <div class="faq-q" onclick="NetParaMenu.showFaqAnswer(2)">
-                  <span>How do I unlock NetPara Gold / VIP?</span>
+                  <span>How do I unlock iConnecto VIP?</span>
                   <span id="faq-icon-2">▼</span>
                 </div>
                 <div class="faq-a" id="faq-ans-2" style="display: none;">
-                  Tap on "NetPara Gold" in the shortcuts menu to activate VIP verification and ad-free experience instantly for free.
+                  Tap on "iConnecto VIP" in the shortcuts menu to activate VIP verification and ad-free experience instantly.
                 </div>
               </div>
 
@@ -379,7 +377,7 @@
                   <span id="faq-icon-3">▼</span>
                 </div>
                 <div class="faq-a" id="faq-ans-3" style="display: none;">
-                  Tap the (+) button on the top right bar or the "What's happening?" card on the Home Feed. You can write text, attach images or video URLs.
+                  Tap the (+) button on the top right bar or the composer prompt on the Home Feed. You can write text, attach images or video URLs.
                 </div>
               </div>
             </div>
@@ -395,7 +393,7 @@
               <span class="menu-chevron">›</span>
             </div>
 
-            <div class="menu-item-row" onclick="alert('NetPara Community Standards:\n• Treat all members with respect.\n• No hate speech, harassment, or spam.\n• Celebrate local creativity and authentic culture.')">
+            <div class="menu-item-row" onclick="alert('iConnecto Community Standards:\n• Treat all members with respect.\n• Connect. Share. Belong.\n• No hate speech, harassment, or spam.\n• Celebrate creativity and authentic community.')">
               <div class="menu-item-left">
                 <span class="menu-item-icon">📜</span>
                 <div>
@@ -406,7 +404,7 @@
               <span class="menu-chevron">›</span>
             </div>
 
-            <div class="menu-item-row" onclick="alert('Privacy Policy:\nNetPara respects your personal data. We do not sell your personal information. Content you share publicly can be viewed by other NetPara users.')">
+            <div class="menu-item-row" onclick="alert('Privacy Policy:\niConnecto respects your personal data. We do not sell your personal information. Content you share publicly can be viewed by other iConnecto users.')">
               <div class="menu-item-left">
                 <span class="menu-item-icon">🛡️</span>
                 <div>
@@ -420,8 +418,9 @@
 
           <!-- App Version & Info -->
           <div class="menu-app-info">
-            <div>NetPara Android • v1.0.0</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Made with ❤️ for Bangladesh 🇧🇩</div>
+            <div style="font-weight: 700; color: var(--text);">iConnecto • v2.0</div>
+            <div style="font-size: 0.78rem; color: var(--primary-light); margin-top: 3px; font-weight: 600;">Connect. Share. Belong.</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Social • Messaging • Community • HD WebRTC Calling</div>
           </div>
 
           <!-- Logout Button -->
@@ -475,11 +474,12 @@
   <!-- Onboarding Welcome Modal -->
   <div id="onboarding-overlay" class="onboarding-screen" style="display: none;">
     <div class="onboarding-slide">
-      <div class="onboarding-icon-card">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+      <div class="onboarding-icon-card" style="background: transparent; border: none; box-shadow: none;">
+        <img src="img/iconnecto_logo.png" alt="iConnecto" style="width: 88px; height: 88px; border-radius: 22px; box-shadow: 0 8px 24px rgba(37,99,235,0.35); object-fit: cover;" />
       </div>
-      <h1 class="onboarding-title">Welcome to NetPara</h1>
-      <p class="onboarding-desc">Connect with creators, friends and the vibrant culture of Bangladesh. Share photos, watch high-speed reels, and chat seamlessly.</p>
+      <h1 class="onboarding-title" style="margin-top: 14px;">Welcome to iConnecto</h1>
+      <p style="color: var(--primary-light); font-weight: 700; font-size: 1.05rem; margin: 4px 0 10px 0;">Connect. Share. Belong.</p>
+      <p class="onboarding-desc">Your modern space for meaningful connections, social sharing, instant messaging, community, and HD 1-to-1 voice & video calls.</p>
     </div>
     <div style="width: 100%; max-width: 400px; margin: 0 auto;">
       <div class="onboarding-dots">
@@ -496,7 +496,10 @@
     <div class="bottom-sheet-card" style="max-height: 90vh;">
       <div class="sheet-handle-bar"></div>
       <div class="sheet-header">
-        <div style="font-weight: 800; font-size: 1.2rem;">NetPara Account</div>
+        <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+          <img src="img/iconnecto_icon.png" style="width: 26px; height: 26px; border-radius: 6px; object-fit: cover;" alt="iConnecto" />
+          <span>iConnecto Account</span>
+        </div>
       </div>
       <div class="sheet-body">
         <div style="display: flex; gap: 8px; margin-bottom: 20px;">
@@ -566,10 +569,10 @@
 
         <!-- Quick Hashtags -->
         <div style="display: flex; gap: 6px; overflow-x: auto; padding: 8px 0;">
-          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#NetPara')">#NetPara</button>
-          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Bangladesh')">#Bangladesh</button>
-          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Dhaka')">#Dhaka</button>
-          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#BanglaTech')">#BanglaTech</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#iConnecto')">#iConnecto</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Connect')">#Connect</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Community')">#Community</button>
+          <button class="btn-secondary" style="font-size: 0.78rem; padding: 4px 10px;" onclick="NetParaPosts.addTag('#Trending')">#Trending</button>
         </div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--surface-border); padding-top: 12px; margin-top: 10px;">
@@ -733,15 +736,15 @@
     <div class="bottom-sheet-card">
       <div class="sheet-handle-bar"></div>
       <div class="sheet-header">
-        <span class="sheet-title">NetPara Gold VIP</span>
+        <span class="sheet-title">iConnecto VIP</span>
         <button class="icon-btn" onclick="NetParaSettings.closePremiumModal()">✕</button>
       </div>
       <div class="sheet-body" style="text-align: center;">
         <div style="font-size: 3rem; margin: 10px 0;">👑</div>
         <h3 style="font-size: 1.3rem;">Elevate Your Experience</h3>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 8px 0 20px 0;">Enjoy zero advertisements, instant verified VIP badge, and boosted content discovery across Bangladesh.</p>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 8px 0 20px 0;">Enjoy zero advertisements, instant verified VIP badge, and boosted social presence across iConnecto.</p>
         <button class="btn-primary" style="width: 100%; padding: 14px;" onclick="NetParaSettings.watchRewardedForGold()">
-          ✨ Activate Gold VIP Access (Free)
+          ✨ Activate iConnecto VIP Access (Free)
         </button>
       </div>
     </div>
@@ -827,7 +830,7 @@
 
   <!-- Firebase Cloud Database Live Modal -->
   <div id="firebase-cloud-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 480px;">
+    <div class="modal-content" style="max-width: 520px; max-height: 90vh; overflow-y: auto;">
       <div class="modal-header">
         <h3 style="display: flex; align-items: center; gap: 8px;">⚡ Firebase Real-time Cloud</h3>
         <button class="icon-btn" onclick="NetParaSettings.closeFirebaseModal()">✕</button>
@@ -841,7 +844,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
           <div style="background: var(--surface); padding: 12px; border-radius: 10px; border: 1px solid var(--surface-border);">
             <div style="font-size: 0.75rem; color: var(--text-muted);">Firestore Collections</div>
-            <div style="font-size: 0.95rem; font-weight: 700; color: var(--primary);">posts, calls, msgs</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: var(--primary);">posts, calls, msgs, users</div>
           </div>
           <div style="background: var(--surface); padding: 12px; border-radius: 10px; border: 1px solid var(--surface-border);">
             <div style="font-size: 0.75rem; color: var(--text-muted);">Sync Mode</div>
@@ -849,11 +852,70 @@
           </div>
         </div>
 
-        <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-          All your posts, direct messages, comments, notifications, and 1-to-1 WebRTC calls synchronize instantly across devices via Cloud Firestore with offline cache support.
+        <!-- Custom Firebase Config Input Box -->
+        <div style="background: var(--surface-hover); border-radius: 12px; padding: 14px; margin-bottom: 16px; border: 1px solid var(--surface-border);">
+          <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+            <span>🔥 নিজস্ব ফায়ারবেস যুক্ত করুন</span>
+            <span style="font-size: 0.72rem; color: var(--primary); cursor: pointer;" onclick="document.getElementById('firebase-guide-box').style.display = document.getElementById('firebase-guide-box').style.display === 'none' ? 'block' : 'none'">কিভাবে পাবেন? ℹ️</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
+            Firebase Console থেকে পাওয়া Web App Configuration কোড এখানে পেস্ট করুন:
+          </p>
+          <textarea id="firebase-config-custom-input" class="form-input" rows="4" style="font-family: monospace; font-size: 0.75rem; resize: vertical;" placeholder="const firebaseConfig = {
+  apiKey: 'AIzaSy...',
+  projectId: 'my-project-id',
+  authDomain: 'my-project.firebaseapp.com',
+  ...
+};"></textarea>
+          
+          <div id="firebase-guide-box" style="display: none; background: var(--surface); border: 1px dashed var(--surface-border); border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 0.76rem; color: var(--text-muted); line-height: 1.5;">
+            <b>সহজ ৩টি ধাপ:</b><br>
+            ১. <a href="https://console.firebase.google.com" target="_blank" style="color: var(--primary);">console.firebase.google.com</a>-এ ফ্রি প্রজেক্ট তৈরি করুন।<br>
+            ২. <b>Build > Firestore Database</b> চালু করে <i>Test Mode</i> সিলেক্ট করুন।<br>
+            ৩. <b>Project Overview > Web (&#60;/&#62;)</b>-এ গিয়ে Config কোড কপি করে এখানে পেস্ট করে "Save & Connect" চাপুন।
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button class="btn-primary" style="flex: 2; padding: 8px;" onclick="NetParaSettings.saveCustomFirebaseConfig()">সংযুক্ত করুন (Save & Connect)</button>
+            <button class="btn-secondary" style="flex: 1; padding: 8px; font-size: 0.78rem;" onclick="NetParaSettings.resetFirebaseConfig()">ডিফল্ট রিসেট</button>
+          </div>
         </div>
 
-        <button class="btn-primary" style="width: 100%;" onclick="NetParaSettings.closeFirebaseModal()">Done</button>
+        <button class="btn-secondary" style="width: 100%;" onclick="NetParaSettings.closeFirebaseModal()">বন্ধ করুন (Close)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share App with Friends Modal -->
+  <div id="share-app-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">🚀 বন্ধুদের মাঝে শেয়ার করুন</h3>
+        <button class="icon-btn" onclick="NetParaApp.closeShareModal()">✕</button>
+      </div>
+      <div style="padding: 18px; text-align: center;">
+        <div style="margin-bottom: 8px;">
+          <img src="img/iconnecto_logo.png" style="width: 64px; height: 64px; border-radius: 16px; box-shadow: 0 4px 16px rgba(37,99,235,0.3); object-fit: cover;" alt="iConnecto" />
+        </div>
+        <h4 style="margin-bottom: 4px; font-size: 1.15rem;">iConnecto</h4>
+        <p style="color: var(--primary-light); font-weight: 700; font-size: 0.88rem; margin-bottom: 8px;">Connect. Share. Belong.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+          বন্ধুদের মাঝে iConnecto-এর লিংক শেয়ার করে একসাথে পোস্ট করুন, রিয়েল-টাইম চ্যাট এবং 1-to-1 এইচডি ভয়েস ও ভিডিও কল উপভোগ করুন!
+        </p>
+
+        <div style="background: var(--surface-hover); border: 1px solid var(--surface-border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px;">
+          <input type="text" id="share-link-input" readonly value="https://ais-pre-czpha2xhfpu3xecmg3uwy5-662286982624.asia-east1.run.app" style="background: none; border: none; color: var(--text); font-size: 0.82rem; width: 100%; outline: none;" />
+          <button class="btn-primary" style="padding: 6px 12px; font-size: 0.78rem; white-space: nowrap;" onclick="NetParaApp.copyShareLink()">Copy Link</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button class="btn-primary" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;" onclick="NetParaApp.shareToWhatsApp()">
+            <span>💬</span> WhatsApp-এ বন্ধুদের পাঠান
+          </button>
+          <button class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="NetParaApp.triggerNativeShare()">
+            <span>📤</span> অন্যান্য অ্যাপে শেয়ার করুন
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -897,7 +959,7 @@
       <div class="call-meta-box">
         <div class="call-type-badge">
           <span style="font-size: 0.8rem;">🔒</span>
-          <span id="call-type-label">NetPara HD Call</span>
+          <span id="call-type-label">iConnecto HD Call</span>
         </div>
         <div id="call-status-timer" class="call-status-timer">00:00</div>
       </div>

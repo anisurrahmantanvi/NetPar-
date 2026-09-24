@@ -126,12 +126,61 @@ const NetParaSettings = (function () {
             ? `<span style="color: #10B981; font-weight: bold;">🟢 Cloud Firestore Live & Synced</span>`
             : `<span style="color: #F59E0B; font-weight: bold;">🟡 Local Offline Mode (Auto-reconnecting)</span>`;
         }
+        const cfgInput = document.getElementById("firebase-config-custom-input");
+        if (cfgInput && window.NetParaFirebase) {
+          try {
+            const currentCfg = NetParaFirebase.getConfig();
+            if (currentCfg && currentCfg.projectId !== "netpara-social") {
+              cfgInput.value = JSON.stringify(currentCfg, null, 2);
+            }
+          } catch (_) {}
+        }
       }
     },
 
     closeFirebaseModal: () => {
       const modal = document.getElementById("firebase-cloud-modal");
       if (modal) modal.classList.remove("open");
+    },
+
+    saveCustomFirebaseConfig: async () => {
+      const input = document.getElementById("firebase-config-custom-input")?.value;
+      if (!input || !input.trim()) {
+        alert("Please paste your Firebase configuration snippet or JSON.");
+        return;
+      }
+
+      try {
+        if (window.NetParaFirebase) {
+          const res = await NetParaFirebase.applyCustomConfig(input);
+          if (res.success) {
+            if (window.NetParaNative) {
+              window.NetParaNative.showToast("Firebase Connected Successfully! 🎉");
+            } else {
+              alert("Firebase Connected Successfully! 🎉");
+            }
+            NetParaSettings.openFirebaseModal(); // refresh status
+          } else {
+            alert("Firebase connection could not be established. Please verify your keys.");
+          }
+        }
+      } catch (err) {
+        alert(err.message || "Failed to parse Firebase configuration.");
+      }
+    },
+
+    resetFirebaseConfig: async () => {
+      if (confirm("Reset to NetPará default live Cloud configuration?")) {
+        if (window.NetParaFirebase) {
+          await NetParaFirebase.resetToDefaultConfig();
+          const cfgInput = document.getElementById("firebase-config-custom-input");
+          if (cfgInput) cfgInput.value = "";
+          NetParaSettings.openFirebaseModal();
+          if (window.NetParaNative) {
+            window.NetParaNative.showToast("Reset to default cloud sync");
+          }
+        }
+      }
     },
 
     unblockUser: (uid) => {

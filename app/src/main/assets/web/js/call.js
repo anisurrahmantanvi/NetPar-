@@ -124,7 +124,7 @@ const NetParaCall = (function () {
 
       // Set Up UI for Outgoing Call
       overlayEl.classList.remove("hidden");
-      document.getElementById("call-type-label").innerText = isVideo ? "NetPara HD Video Call" : "NetPara HD Voice Call";
+      document.getElementById("call-type-label").innerText = isVideo ? "iConnecto HD Video Call" : "iConnecto HD Voice Call";
       peerAvatarEl.src = targetUser.avatarUrl;
       peerNameEl.innerText = targetUser.fullName;
       peerHandleEl.innerText = "@" + targetUser.username;
@@ -296,7 +296,7 @@ const NetParaCall = (function () {
 
       // Show Fullscreen In-Call UI
       overlayEl.classList.remove("hidden");
-      document.getElementById("call-type-label").innerText = isVideo ? "NetPara HD Video Call" : "NetPara HD Voice Call";
+      document.getElementById("call-type-label").innerText = isVideo ? "iConnecto HD Video Call" : "iConnecto HD Voice Call";
       peerAvatarEl.src = caller.avatarUrl;
       peerNameEl.innerText = caller.fullName;
       peerHandleEl.innerText = "@" + (caller.username || "user");

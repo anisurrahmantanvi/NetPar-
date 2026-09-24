@@ -1,6 +1,6 @@
 {
-  "name": "NetPara",
-  "description": "Modern, premium Bangladeshi social media platform for sharing posts, short reels, messaging, and discovering community content in Bangladesh.",
+  "name": "iConnecto",
+  "description": "iConnecto - Connect. Share. Belong. Modern social networking, messaging, community, reels, and HD WebRTC 1-to-1 voice & video calling.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

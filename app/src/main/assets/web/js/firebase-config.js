@@ -1,20 +1,20 @@
 /**
  * NetPara Firebase Cloud Real-time Engine
  * Connects Cloud Firestore, Authentication & Realtime Listeners
- * Supports Offline Persistence, Live Bidirectional Sync, and Failover
+ * Supports Offline Persistence, Live Bidirectional Sync, and Dynamic Config
  */
 
 const NetParaFirebase = (function () {
   const STORAGE_KEY = "netpara_custom_firebase_cfg";
 
-  // Default Firebase configuration template
+  // Default Firebase configuration
   const defaultFirebaseConfig = {
     apiKey: "AIzaSyNetParaLiveAppKey2026_SecureSync",
     authDomain: "netpara-social.firebaseapp.com",
     projectId: "netpara-social",
     storageBucket: "netpara-social.appspot.com",
     messagingSenderId: "662286982624",
-    appId: "1:662286982624:android:9d45e45a271cb891",
+    appId: "1:662286982624:web:9d45e45a271cb891",
     measurementId: "G-NETPARA2026"
   };
 
@@ -51,9 +51,14 @@ const NetParaFirebase = (function () {
       try {
         const config = loadConfig();
 
-        if (!firebase.apps || firebase.apps.length === 0) {
-          firebase.initializeApp(config);
+        // If apps already initialized with different config, delete and reinit
+        if (firebase.apps && firebase.apps.length > 0) {
+          try {
+            await firebase.app().delete();
+          } catch (_) {}
         }
+
+        firebase.initializeApp(config);
 
         db = firebase.firestore();
         auth = firebase.auth();
@@ -64,9 +69,9 @@ const NetParaFirebase = (function () {
           console.log("Firestore offline persistence enabled.");
         } catch (err) {
           if (err.code === "failed-precondition") {
-            console.warn("Firestore persistence failed-precondition: multiple tabs open.");
+            console.warn("Firestore persistence: multiple tabs open.");
           } else if (err.code === "unimplemented") {
-            console.warn("Firestore persistence not supported in this browser environment.");
+            console.warn("Firestore persistence not supported in this browser.");
           }
         }
 
@@ -88,14 +93,84 @@ const NetParaFirebase = (function () {
     },
 
     /**
-     * Real-time Data Sync Listeners for Feed, Messages, Calls & Notifications
+     * Parse any Firebase snippet or JSON string and connect
+     */
+    applyCustomConfig: async function (inputString) {
+      if (!inputString || !inputString.trim()) {
+        throw new Error("Please enter your Firebase configuration.");
+      }
+
+      let parsed = null;
+      const clean = inputString.trim();
+
+      // Check if raw JSON
+      if (clean.startsWith("{") && clean.endsWith("}")) {
+        try {
+          parsed = JSON.parse(clean);
+        } catch (e) {
+          // If unquoted JSON keys, use regex extraction
+        }
+      }
+
+      if (!parsed) {
+        // Regex extract standard firebase config fields from JS code
+        const extract = (key) => {
+          const match = clean.match(new RegExp(`${key}\\s*:\\s*["']([^"']+)["']`));
+          return match ? match[1] : null;
+        };
+
+        const apiKey = extract("apiKey");
+        const projectId = extract("projectId");
+        const authDomain = extract("authDomain") || (projectId ? `${projectId}.firebaseapp.com` : "");
+        const storageBucket = extract("storageBucket") || (projectId ? `${projectId}.appspot.com` : "");
+        const messagingSenderId = extract("messagingSenderId") || "";
+        const appId = extract("appId") || "";
+
+        if (!apiKey || !projectId) {
+          throw new Error("Could not find 'apiKey' and 'projectId' in the pasted config. Please check your Firebase snippet.");
+        }
+
+        parsed = {
+          apiKey,
+          authDomain,
+          projectId,
+          storageBucket,
+          messagingSenderId,
+          appId
+        };
+      }
+
+      saveConfig(parsed);
+      const success = await this.init();
+      return { success, config: parsed };
+    },
+
+    resetToDefaultConfig: async function () {
+      localStorage.removeItem(STORAGE_KEY);
+      await this.init();
+    },
+
+    /**
+     * Real-time Data Sync Listeners for Feed, Messages, Calls, Users & Requests
      */
     startRealtimeListeners: function () {
       if (!db) return;
 
-      // 1. Real-time Incoming Calls Listener (1-to-1 WebRTC)
+      // Stop previous listeners
+      activeListeners.forEach(unsub => {
+        try { unsub(); } catch (_) {}
+      });
+      activeListeners = [];
+
+      const currentUser = NetParaBackend.getCurrentUser();
+
+      // 1. Sync Current User Profile to Cloud
+      if (currentUser) {
+        this.syncUserToCloud(currentUser);
+      }
+
+      // 2. Real-time Incoming Calls Listener (1-to-1 WebRTC)
       try {
-        const currentUser = NetParaBackend.getCurrentUser();
         if (currentUser) {
           const unsubCalls = db.collection("calls")
             .where("receiver.uid", "==", currentUser.uid)
@@ -123,11 +198,11 @@ const NetParaFirebase = (function () {
         console.warn("Calls listener setup err:", e);
       }
 
-      // 2. Real-time Posts Listener
+      // 3. Real-time Posts Listener (Everyone's posts live)
       try {
         const unsubPosts = db.collection("posts")
           .orderBy("createdAt", "desc")
-          .limit(40)
+          .limit(50)
           .onSnapshot((snapshot) => {
             if (!snapshot.empty) {
               const cloudPosts = [];
@@ -135,7 +210,6 @@ const NetParaFirebase = (function () {
                 cloudPosts.push({ id: doc.id, ...doc.data() });
               });
 
-              // Merge cloud posts with local feed
               if (window.NetParaBackend && cloudPosts.length > 0) {
                 NetParaBackend.mergeCloudPosts(cloudPosts);
                 if (window.NetParaFeed && document.getElementById("view-feed")?.classList.contains("active")) {
@@ -151,9 +225,38 @@ const NetParaFirebase = (function () {
         console.warn("Posts listener error:", e);
       }
 
-      // 3. Real-time Messages Listener
+      // 4. Real-time Users Discovery Listener
+      // Syncs all registered friends across different phones
       try {
-        const currentUser = NetParaBackend.getCurrentUser();
+        const unsubUsers = db.collection("users")
+          .limit(60)
+          .onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === "added" || change.type === "modified") {
+                const uData = change.doc.data();
+                if (window.NetParaBackend) {
+                  const dbLocal = NetParaBackend.getDb();
+                  const idx = dbLocal.users.findIndex(u => u.uid === uData.uid);
+                  if (idx === -1) {
+                    dbLocal.users.push(uData);
+                    NetParaBackend.save();
+                  } else if (uData.uid !== "user_me") {
+                    dbLocal.users[idx] = { ...dbLocal.users[idx], ...uData };
+                    NetParaBackend.save();
+                  }
+                }
+              }
+            });
+          }, (err) => {
+            console.warn("Users listener error:", err.message);
+          });
+        activeListeners.push(unsubUsers);
+      } catch (e) {
+        console.warn("Users listener error:", e);
+      }
+
+      // 5. Real-time Messages Listener
+      try {
         if (currentUser) {
           const unsubMessages = db.collection("conversations")
             .where("participants", "array-contains", currentUser.uid)
@@ -173,6 +276,32 @@ const NetParaFirebase = (function () {
         }
       } catch (e) {
         console.warn("Messages listener error:", e);
+      }
+    },
+
+    /**
+     * Sync user profile to Firestore
+     */
+    syncUserToCloud: async function (user) {
+      if (!db || !isCloudConnected || !user) return false;
+      try {
+        await db.collection("users").doc(user.uid).set({
+          uid: user.uid,
+          username: user.username,
+          fullName: user.fullName,
+          nickname: user.nickname || "",
+          avatarUrl: user.avatarUrl,
+          coverUrl: user.coverUrl || "",
+          bio: user.bio || "",
+          isVerified: !!user.isVerified,
+          isPremium: !!user.isPremium,
+          isOnline: true,
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        return true;
+      } catch (e) {
+        console.warn("Error syncing user to Firestore:", e);
+        return false;
       }
     },
 

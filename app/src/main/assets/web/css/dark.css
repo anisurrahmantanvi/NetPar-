@@ -1,4 +1,4 @@
-/* NetPará Dark Mode Theme */
+/* iConnecto Dark Mode Theme */
 body.dark-mode {
   --bg-app: #0B132B;
   --surface: #16203B;
@@ -9,7 +9,7 @@ body.dark-mode {
   --text-subtle: #64748B;
   --bottom-bar-bg: rgba(22, 32, 59, 0.95);
   --header-bg: rgba(22, 32, 59, 0.92);
-  --primary-light: rgba(79, 70, 229, 0.2);
+  --primary-light: rgba(37, 99, 235, 0.25);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
   --shadow-lg: 0 10px 30px rgba(0,0,0,0.6);

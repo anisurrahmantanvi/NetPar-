@@ -3,6 +3,6 @@
     <item
         android:width="66dp"
         android:height="66dp"
-        android:drawable="@drawable/netpara_logo"
+        android:drawable="@drawable/icon_foreground_1790268007175"
         android:gravity="center" />
 </layer-list>

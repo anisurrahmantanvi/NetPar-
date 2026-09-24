@@ -99,7 +99,7 @@ class WebAppInterface(private val activity: MainActivity) {
                 putExtra(Intent.EXTRA_SUBJECT, title)
                 putExtra(Intent.EXTRA_TEXT, "$text\n$url".trim())
             }
-            activity.startActivity(Intent.createChooser(shareIntent, "Share via NetPara"))
+            activity.startActivity(Intent.createChooser(shareIntent, "Share via iConnecto"))
         }
     }
 
@@ -107,7 +107,7 @@ class WebAppInterface(private val activity: MainActivity) {
     fun copyToClipboard(text: String) {
         activity.runOnUiThread {
             val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-            val clip = ClipData.newPlainText("NetPara Copy", text)
+            val clip = ClipData.newPlainText("iConnecto Copy", text)
             clipboard?.setPrimaryClip(clip)
             Toast.makeText(activity, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
@@ -134,8 +134,8 @@ class WebAppInterface(private val activity: MainActivity) {
         json.put("platform", "Android")
         json.put("osVersion", Build.VERSION.RELEASE)
         json.put("sdkInt", Build.VERSION.SDK_INT)
-        json.put("appName", "NetPara")
-        json.put("versionName", "1.0.0")
+        json.put("appName", "iConnecto")
+        json.put("versionName", "2.0.0")
         return json.toString()
     }
 

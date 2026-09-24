@@ -63,6 +63,11 @@ const NetParaAuth = (function () {
       }
 
       setSession(user, remember);
+
+      if (window.NetParaFirebase && window.NetParaFirebase.syncUserToCloud) {
+        NetParaFirebase.syncUserToCloud(user);
+      }
+
       if (window.NetParaNative) {
         window.NetParaNative.showToast("Welcome back, @" + user.username + "!");
       }
@@ -119,6 +124,10 @@ const NetParaAuth = (function () {
       db.users.push(newUser);
       NetParaBackend.save();
       setSession(newUser, true);
+
+      if (window.NetParaFirebase && window.NetParaFirebase.syncUserToCloud) {
+        NetParaFirebase.syncUserToCloud(newUser);
+      }
 
       if (window.NetParaNative) {
         window.NetParaNative.showToast("Account created successfully!");

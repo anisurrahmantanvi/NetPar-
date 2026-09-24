@@ -446,8 +446,8 @@ const NetParaBackend = (function () {
     announcements: [
       {
         id: "anc_1",
-        title: "Welcome to NetPara!",
-        content: "Experience the fastest social network in Bangladesh. Explore reels, share posts, and connect with creators.",
+        title: "Welcome to iConnecto!",
+        content: "Connect. Share. Belong. Experience modern social networking, messaging, community feeds, and HD WebRTC calling.",
         timestamp: Date.now() - 86400000 * 2
       }
     ],
