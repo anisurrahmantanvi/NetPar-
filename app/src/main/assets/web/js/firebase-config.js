@@ -9,13 +9,13 @@ const NetParaFirebase = (function () {
 
   // Default Firebase configuration
   const defaultFirebaseConfig = {
-    apiKey: "AIzaSyNetParaLiveAppKey2026_SecureSync",
-    authDomain: "netpara-social.firebaseapp.com",
-    projectId: "netpara-social",
-    storageBucket: "netpara-social.appspot.com",
-    messagingSenderId: "662286982624",
-    appId: "1:662286982624:web:9d45e45a271cb891",
-    measurementId: "G-NETPARA2026"
+    apiKey: "AIzaSyAHDctPClQ2IUbbFUaskbB6eDVPIOJ3X70",
+    authDomain: "iconnectoapp.firebaseapp.com",
+    projectId: "iconnectoapp",
+    storageBucket: "iconnectoapp.firebasestorage.app",
+    messagingSenderId: "859472364179",
+    appId: "1:859472364179:android:d1f65f075b25b9acdc0366",
+    measurementId: "G-ICONNECTO"
   };
 
   let isInitialized = false;
@@ -28,7 +28,10 @@ const NetParaFirebase = (function () {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.projectId && parsed.projectId !== "netpara-social") {
+          return parsed;
+        }
       }
     } catch (e) {
       console.warn("Could not load stored firebase config:", e);
@@ -110,6 +113,24 @@ const NetParaFirebase = (function () {
         } catch (e) {
           // If unquoted JSON keys, use regex extraction
         }
+      }
+
+      // If google-services.json format was pasted
+      if (parsed && parsed.project_info) {
+        const client0 = parsed.client && parsed.client[0] ? parsed.client[0] : {};
+        const apiKey = client0.api_key && client0.api_key[0] ? client0.api_key[0].current_key : "";
+        const appId = client0.client_info ? client0.client_info.mobilesdk_app_id : "";
+        const projectId = parsed.project_info.project_id || "";
+        const projectNumber = parsed.project_info.project_number || "";
+        const storageBucket = parsed.project_info.storage_bucket || (projectId ? `${projectId}.firebasestorage.app` : "");
+        parsed = {
+          apiKey,
+          authDomain: `${projectId}.firebaseapp.com`,
+          projectId,
+          storageBucket,
+          messagingSenderId: projectNumber,
+          appId
+        };
       }
 
       if (!parsed) {
@@ -198,13 +219,15 @@ const NetParaFirebase = (function () {
         console.warn("Calls listener setup err:", e);
       }
 
-      // 3. Real-time Posts Listener (Everyone's posts live)
+      // 3. Real-time Posts Listener (Everyone's posts live & scrolling updates)
       try {
+        let initialPostsLoaded = false;
         const unsubPosts = db.collection("posts")
           .orderBy("createdAt", "desc")
           .limit(50)
           .onSnapshot((snapshot) => {
-            if (!snapshot.empty) {
+            if (!initialPostsLoaded) {
+              // Initial feed load
               const cloudPosts = [];
               snapshot.forEach(doc => {
                 cloudPosts.push({ id: doc.id, ...doc.data() });
@@ -212,10 +235,38 @@ const NetParaFirebase = (function () {
 
               if (window.NetParaBackend && cloudPosts.length > 0) {
                 NetParaBackend.mergeCloudPosts(cloudPosts);
-                if (window.NetParaFeed && document.getElementById("view-feed")?.classList.contains("active")) {
-                  NetParaFeed.render();
-                }
               }
+              if (window.NetParaFeed && document.getElementById("view-feed")?.classList.contains("active")) {
+                NetParaFeed.render();
+              }
+              initialPostsLoaded = true;
+            } else {
+              // Granular live doc changes from other devices / users
+              snapshot.docChanges().forEach(change => {
+                const postData = { id: change.doc.id, ...change.doc.data() };
+                if (change.type === "added") {
+                  if (window.NetParaBackend) {
+                    NetParaBackend.mergeCloudPosts([postData]);
+                  }
+                  if (window.NetParaFeed && document.getElementById("view-feed")?.classList.contains("active")) {
+                    NetParaFeed.onNewPostArrived(postData);
+                  }
+                } else if (change.type === "modified") {
+                  if (window.NetParaBackend) {
+                    NetParaBackend.mergeCloudPosts([postData]);
+                  }
+                  if (window.NetParaFeed) {
+                    NetParaFeed.onPostModified(postData);
+                  }
+                } else if (change.type === "removed") {
+                  if (window.NetParaBackend) {
+                    NetParaBackend.deletePost(change.doc.id);
+                  }
+                  if (window.NetParaFeed) {
+                    NetParaFeed.onPostRemoved(change.doc.id);
+                  }
+                }
+              });
             }
           }, (err) => {
             console.warn("Posts sync listener:", err.message);
@@ -350,6 +401,77 @@ const NetParaFirebase = (function () {
       } catch (e) {
         console.warn("Error syncing message to cloud:", e);
         return false;
+      }
+    },
+
+    /**
+     * Update post likes and reactions in Cloud Firestore
+     */
+    updatePostReactions: async function (postId, likesCount, reactions, userReactions) {
+      if (!db || !isCloudConnected) return false;
+      try {
+        await db.collection("posts").doc(postId).set({
+          likesCount: likesCount || 0,
+          reactions: reactions || {},
+          userReactions: userReactions || {}
+        }, { merge: true });
+        return true;
+      } catch (e) {
+        console.warn("Error syncing reaction to Firestore:", e);
+        return false;
+      }
+    },
+
+    /**
+     * Sync comment to Cloud Firestore
+     */
+    addCommentToCloud: async function (postId, comment) {
+      if (!db || !isCloudConnected) return false;
+      try {
+        const batch = db.batch();
+        const postRef = db.collection("posts").doc(postId);
+        batch.set(postRef, {
+          commentsCount: firebase.firestore.FieldValue.increment(1)
+        }, { merge: true });
+
+        const commRef = postRef.collection("comments").doc(comment.id);
+        batch.set(commRef, {
+          ...comment,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        await batch.commit();
+        return true;
+      } catch (e) {
+        console.warn("Error syncing comment to Firestore:", e);
+        return false;
+      }
+    },
+
+    /**
+     * Listen for real-time comments on a specific post
+     */
+    listenToPostComments: function (postId, onCommentChange) {
+      if (!db || !isCloudConnected) return null;
+      try {
+        return db.collection("posts").doc(postId).collection("comments")
+          .orderBy("createdAt", "asc")
+          .onSnapshot(snapshot => {
+            const comments = [];
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              comments.push({
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toMillis ? data.createdAt.toMillis() : (data.createdAt || Date.now())
+              });
+            });
+            onCommentChange(comments);
+          }, err => {
+            console.warn("Post comments listener error:", err.message);
+          });
+      } catch (e) {
+        console.warn("listenToPostComments error:", e);
+        return null;
       }
     },
 

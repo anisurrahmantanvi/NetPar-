@@ -4,11 +4,12 @@
  */
 
 const NetParaProfile = (function () {
-  let viewingUserId = "user_me";
+  let viewingUserId = null;
   let activeTab = "posts"; // "posts" | "media" | "saved"
 
   function renderProfile() {
-    const user = NetParaBackend.getUser(viewingUserId);
+    const activeUid = viewingUserId || NetParaBackend.getCurrentUserId();
+    const user = NetParaBackend.getUser(activeUid);
     const currentUser = NetParaBackend.getCurrentUser();
     if (!user) return;
 
@@ -182,7 +183,7 @@ const NetParaProfile = (function () {
 
   return {
     show: (userId) => {
-      viewingUserId = userId || "user_me";
+      viewingUserId = userId || NetParaBackend.getCurrentUserId();
       activeTab = "posts";
       document.querySelectorAll(".profile-tab-btn").forEach(b => b.classList.remove("active"));
       const firstTab = document.getElementById("profile-tab-posts");
@@ -232,7 +233,9 @@ const NetParaProfile = (function () {
         return;
       }
 
-      NetParaBackend.updateUser("user_me", { fullName, bio, website });
+      const cur = NetParaBackend.getCurrentUser();
+      const myUid = cur ? cur.uid : NetParaBackend.getCurrentUserId();
+      NetParaBackend.updateUser(myUid, { fullName, bio, website });
       NetParaProfile.closeEditModal();
       renderProfile();
       if (window.NetParaNative) {

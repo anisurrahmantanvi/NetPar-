@@ -12,6 +12,18 @@ const NetParaChat = (function () {
 
     const convs = NetParaBackend.getConversations();
 
+    if (convs.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+          <div style="font-size: 2.8rem; margin-bottom: 12px;">💬</div>
+          <h3 style="color: var(--text); font-size: 1.05rem;">No conversations yet</h3>
+          <p style="margin-top: 6px; font-size: 0.85rem;">Find friends or search users to start real-time messaging!</p>
+          <button class="btn-primary btn-sm" style="margin-top: 14px;" onclick="NetParaApp.navigate('friends')">Find People</button>
+        </div>
+      `;
+      return;
+    }
+
     container.innerHTML = convs.map(c => {
       const peer = NetParaBackend.getUser(c.participantId) || {
         fullName: "Chat User",
@@ -55,8 +67,9 @@ const NetParaChat = (function () {
     if (statusEl) statusEl.innerText = "Online";
     if (avatarEl && peer) avatarEl.src = peer.avatarUrl;
 
+    const myUid = NetParaBackend.getCurrentUserId();
     area.innerHTML = msgs.map(m => {
-      const isOut = m.senderId === "user_me";
+      const isOut = m.senderId === myUid;
       return `
         <div class="msg-bubble ${isOut ? 'outgoing' : 'incoming'}">
           <p>${m.text}</p>
@@ -229,11 +242,12 @@ const NetParaChat = (function () {
         ];
         const randomReply = replies[Math.floor(Math.random() * replies.length)];
 
+        const myUid = NetParaBackend.getCurrentUserId();
         const replyMsg = {
           id: "msg_" + Date.now(),
           convId: activeConvId,
           senderId: conv?.participantId || "user_mariana",
-          receiverId: "user_me",
+          receiverId: myUid,
           text: randomReply,
           createdAt: Date.now(),
           isRead: false
@@ -268,9 +282,10 @@ const NetParaChat = (function () {
         existingConv.lastMessage = convData.lastMessage;
         existingConv.timestamp = Date.now();
       } else {
+        const myUid = NetParaBackend.getCurrentUserId();
         db.conversations.unshift({
           id: convId,
-          participantId: (convData.participants || []).find(p => p !== "user_me") || "user_sadia",
+          participantId: (convData.participants || []).find(p => p !== myUid) || "unknown_user",
           lastMessage: convData.lastMessage,
           timestamp: Date.now(),
           unreadCount: 1

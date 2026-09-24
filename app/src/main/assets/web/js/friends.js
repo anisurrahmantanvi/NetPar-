@@ -59,8 +59,8 @@ const NetParaFriends = (function () {
         <div class="empty-state-box">
           <div class="empty-state-icon">👥</div>
           <h3>No Pending Requests</h3>
-          <p>You have responded to all incoming friend requests. Discover new creators in Pará below!</p>
-          <button class="btn-primary" style="margin-top: 14px;" onclick="NetParaFriends.setTab('suggestions')">Explore Suggestions</button>
+          <p>No new friend requests right now. When real users join on iConnecto and send you requests, they will appear here!</p>
+          <button class="btn-primary" style="margin-top: 14px;" onclick="NetParaFriends.setTab('suggestions')">Explore Community</button>
         </div>
       `;
       return;
@@ -87,7 +87,7 @@ const NetParaFriends = (function () {
                 <div class="friend-mutual-text">
                   <span class="mutual-dot"></span> ${req.mutualFriends} mutual friends
                 </div>
-                <div class="friend-location-text">📍 ${u.city || "Pará, Brazil"}</div>
+                <div class="friend-location-text">📍 ${u.city || "Dhaka, Bangladesh"}</div>
 
                 <div class="friend-actions-row" id="actions-${req.id}">
                   <button class="btn-primary btn-sm flex-1" onclick="NetParaFriends.accept('${req.id}', '${u.fullName}')">Confirm</button>
@@ -109,7 +109,7 @@ const NetParaFriends = (function () {
         <div class="empty-state-box">
           <div class="empty-state-icon">✨</div>
           <h3>No New Suggestions</h3>
-          <p>You are connected with all recommended profiles in your area.</p>
+          <p>Share your iConnecto link with friends or colleagues to connect and start calling in real time!</p>
         </div>
       `;
       return;
@@ -134,7 +134,7 @@ const NetParaFriends = (function () {
               <div class="friend-mutual-text">
                 <span class="mutual-dot"></span> ${u.mutualFriends} mutual friends
               </div>
-              <div class="friend-location-text">📍 ${u.city || "Pará"}</div>
+              <div class="friend-location-text">📍 ${u.city || "Dhaka, Bangladesh"}</div>
 
               <div class="friend-actions-row">
                 ${u.hasRequested ? `
@@ -166,13 +166,13 @@ const NetParaFriends = (function () {
 
       <div class="friends-search-box">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" placeholder="Search friends in Pará..." value="${searchQuery}" oninput="NetParaFriends.handleSearch(this.value)" class="friends-search-input" />
+        <input type="text" placeholder="Search friends by name or @username..." value="${searchQuery}" oninput="NetParaFriends.handleSearch(this.value)" class="friends-search-input" />
         ${searchQuery ? `<button class="search-clear-btn" onclick="NetParaFriends.clearSearch()">✕</button>` : ''}
       </div>
 
       ${friends.length === 0 ? `
         <div class="empty-state-box">
-          <p style="color: var(--text-muted);">No friends matching "${searchQuery}"</p>
+          <p style="color: var(--text-muted);">${searchQuery ? `No friends matching "${searchQuery}"` : "You have not connected with any friends yet. Explore community suggestions above!"}</p>
         </div>
       ` : `
         <div class="all-friends-list">

@@ -6,6 +6,7 @@
 const NetParaComments = (function () {
   let activePostId = null;
   let replyToCommentId = null;
+  let unsubscribeComments = null;
 
   function renderList() {
     const listEl = document.getElementById("comments-sheet-list");
@@ -83,9 +84,38 @@ const NetParaComments = (function () {
       const modal = document.getElementById("comments-modal");
       if (modal) modal.classList.add("open");
       renderList();
+
+      // Listen for live real-time comments on this post
+      if (unsubscribeComments) {
+        try { unsubscribeComments(); } catch (_) {}
+        unsubscribeComments = null;
+      }
+      if (window.NetParaFirebase && window.NetParaFirebase.listenToPostComments) {
+        unsubscribeComments = NetParaFirebase.listenToPostComments(postId, (cloudComments) => {
+          if (!cloudComments || !cloudComments.length) return;
+          const db = NetParaBackend.getDb();
+          if (!db.comments) db.comments = [];
+          const existingIds = new Set(db.comments.map(c => c.id));
+          let changed = false;
+          cloudComments.forEach(cc => {
+            if (!existingIds.has(cc.id)) {
+              db.comments.push(cc);
+              existingIds.add(cc.id);
+              changed = true;
+            }
+          });
+          if (changed && activePostId === postId) {
+            renderList();
+          }
+        });
+      }
     },
 
     close: () => {
+      if (unsubscribeComments) {
+        try { unsubscribeComments(); } catch (_) {}
+        unsubscribeComments = null;
+      }
       const modal = document.getElementById("comments-modal");
       if (modal) modal.classList.remove("open");
       activePostId = null;

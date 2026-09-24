@@ -28,7 +28,7 @@ const NetParaPosts = (function () {
     `).join("");
   }
 
-  function compressImage(file, maxWidth = 1280, quality = 0.85) {
+  function compressImage(file, maxWidth = 960, quality = 0.75) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -56,6 +56,24 @@ const NetParaPosts = (function () {
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+  }
+
+  async function uploadMediaIfPossible(dataUrl, fileName) {
+    if (window.firebase && firebase.storage && window.NetParaFirebase && window.NetParaFirebase.isConnected()) {
+      try {
+        const storageRef = firebase.storage().ref();
+        const cleanName = (fileName || "img.jpg").replace(/[^a-zA-Z0-9._-]/g, "_");
+        const fileRef = storageRef.child(`posts/${Date.now()}_${cleanName}`);
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const snapshot = await fileRef.put(blob);
+        const downloadUrl = await snapshot.ref.getDownloadURL();
+        return downloadUrl;
+      } catch (e) {
+        console.warn("Storage upload fallback to compressed dataUrl:", e);
+      }
+    }
+    return dataUrl;
   }
 
   return {
@@ -130,7 +148,7 @@ const NetParaPosts = (function () {
       }
     },
 
-    publish: () => {
+    publish: async () => {
       const textarea = document.getElementById("composer-textarea");
       const content = textarea ? textarea.value.trim() : "";
 
@@ -142,32 +160,44 @@ const NetParaPosts = (function () {
       const publishBtn = document.getElementById("btn-publish-post");
       if (publishBtn) {
         publishBtn.disabled = true;
-        publishBtn.innerText = "Publishing...";
+        publishBtn.innerText = "Publishing to Cloud...";
       }
 
-      const mediaUrls = selectedMedia.filter(m => m.type === "image").map(m => m.dataUrl);
-      const videoItem = selectedMedia.find(m => m.type === "video");
+      try {
+        const imageItems = selectedMedia.filter(m => m.type === "image");
+        const videoItem = selectedMedia.find(m => m.type === "video");
 
-      setTimeout(() => {
+        // Upload or compress media
+        const uploadedMediaUrls = [];
+        for (const item of imageItems) {
+          const url = await uploadMediaIfPossible(item.dataUrl, item.name);
+          uploadedMediaUrls.push(url);
+        }
+
         const newPost = NetParaBackend.createPost({
           content,
-          mediaUrls,
+          mediaUrls: uploadedMediaUrls,
           videoUrl: videoItem ? videoItem.dataUrl : null
         });
 
         if (window.NetParaNative) {
-          window.NetParaNative.showToast("Post shared to NetPara!");
+          window.NetParaNative.showToast("Post shared to iConnecto!");
           window.NetParaNative.vibrate(40);
         }
 
+        NetParaPosts.closeComposer();
+        if (window.NetParaFeed) {
+          NetParaFeed.onNewPostArrived(newPost);
+        }
+      } catch (err) {
+        console.error("Publish error:", err);
+        alert("Could not publish post: " + err.message);
+      } finally {
         if (publishBtn) {
           publishBtn.disabled = false;
           publishBtn.innerText = "Post";
         }
-
-        NetParaPosts.closeComposer();
-        NetParaFeed.init();
-      }, 500);
+      }
     }
   };
 })();

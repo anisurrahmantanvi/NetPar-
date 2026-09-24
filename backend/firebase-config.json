@@ -1,9 +1,9 @@
 {
-  "apiKey": "AIzaSyYOUR_FIREBASE_API_KEY_HERE",
-  "authDomain": "netpara-social.firebaseapp.com",
-  "projectId": "netpara-social",
-  "storageBucket": "netpara-social.appspot.com",
-  "messagingSenderId": "123456789012",
-  "appId": "1:123456789012:android:abcdef0123456789",
-  "measurementId": "G-NETPARASOCIAL"
+  "apiKey": "AIzaSyAHDctPClQ2IUbbFUaskbB6eDVPIOJ3X70",
+  "authDomain": "iconnectoapp.firebaseapp.com",
+  "projectId": "iconnectoapp",
+  "storageBucket": "iconnectoapp.firebasestorage.app",
+  "messagingSenderId": "859472364179",
+  "appId": "1:859472364179:android:d1f65f075b25b9acdc0366",
+  "measurementId": "G-ICONNECTO"
 }

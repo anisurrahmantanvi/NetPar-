@@ -13,6 +13,18 @@ const NetParaReels = (function () {
     const db = NetParaBackend.getDb();
     const reels = db.reels || [];
 
+    if (reels.length === 0) {
+      container.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 75vh; text-align: center; padding: 24px; color: var(--text-muted);">
+          <div style="font-size: 3.2rem; margin-bottom: 12px;">🎬</div>
+          <h3 style="color: var(--text); font-size: 1.1rem;">No reels uploaded yet</h3>
+          <p style="margin-top: 6px; font-size: 0.85rem; max-width: 280px;">Share short videos and reels with your community on iConnecto!</p>
+          <button class="btn-primary" style="margin-top: 18px; padding: 10px 22px;" onclick="NetParaPosts.openComposer()">Upload First Reel</button>
+        </div>
+      `;
+      return;
+    }
+
     container.innerHTML = reels.map((reel, index) => {
       const author = NetParaBackend.getUser(reel.authorId) || {
         fullName: "Creator",

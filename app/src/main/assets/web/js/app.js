@@ -17,11 +17,17 @@ const NetParaApp = (function () {
 
     // Check Authentication
     if (!NetParaAuth.isLoggedIn()) {
-      const me = NetParaBackend.getCurrentUser();
-      if (me) {
-        NetParaAuth.login(me.username, "password123", true);
+      const explicitLogout = localStorage.getItem("iconnecto_explicit_logout") === "true";
+      if (!explicitLogout) {
+        const saved = NetParaAuth.getSavedAccounts();
+        if (saved && saved.length > 0) {
+          NetParaAuth.switchToAccount(saved[0].uid);
+        } else {
+          showAuthScreen("login");
+          return;
+        }
       } else {
-        showAuthScreen();
+        showAuthScreen("accounts");
         return;
       }
     }
@@ -148,32 +154,120 @@ const NetParaApp = (function () {
     const screen = document.getElementById("onboarding-overlay");
     if (screen) screen.style.display = "none";
     if (!NetParaAuth.isLoggedIn()) {
-      const me = NetParaBackend.getCurrentUser();
-      if (me) {
-        NetParaAuth.login(me.username, "password123", true);
-      }
+      showAuthScreen("accounts");
+      return;
     }
     navigate("feed");
   }
 
-  function showAuthScreen() {
+  function updateUserInterface() {
+    const me = NetParaBackend.getCurrentUser();
+    if (!me) return;
+
+    // Update Composer Avatar
+    const composerAvatar = document.getElementById("home-composer-avatar");
+    if (composerAvatar) composerAvatar.src = me.avatarUrl || "img/avatar_anisur_tanvi.jpg";
+
+    // Update Menu Card
+    if (window.NetParaMenu && typeof NetParaMenu.init === "function") {
+      NetParaMenu.init();
+    }
+
+    // Refresh Feed to reflect reactions and author permissions
+    if (window.NetParaFeed && typeof NetParaFeed.render === "function") {
+      NetParaFeed.render();
+    }
+
+    // Update profile if currently on profile view
+    if (currentView === "profile" && window.NetParaProfile && typeof NetParaProfile.show === "function") {
+      NetParaProfile.show(me.uid);
+    }
+
+    updateGlobalBadges();
+  }
+
+  function renderAuthAccountsList() {
+    const container = document.getElementById("auth-saved-accounts-list");
+    if (!container) return;
+
+    const accounts = NetParaAuth.getSavedAccounts();
+    const currentSession = NetParaAuth.getCurrentSession();
+
+    if (!accounts || accounts.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 16px; color: var(--text-muted); font-size: 0.85rem;">
+          No saved accounts on this device yet.<br>Please sign in or create a new ID below.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = accounts.map(acc => {
+      const isActive = currentSession && currentSession.uid === acc.uid;
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; margin-bottom: 8px; border-radius: 12px; background: var(--surface-secondary); border: 1px solid ${isActive ? 'var(--primary)' : 'var(--surface-border)'};">
+          <div style="display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1;" onclick="NetParaAuth.switchToAccount('${acc.uid}')">
+            <img src="${acc.avatarUrl || 'img/avatar_anisur_tanvi.jpg'}" style="width: 42px; height: 42px; border-radius: 99px; object-fit: cover; border: 2px solid var(--primary-light);" alt="${acc.fullName}" />
+            <div>
+              <div style="font-weight: 700; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
+                ${acc.fullName}
+                ${isActive ? '<span style="font-size: 0.65rem; background: var(--primary); color: #FFF; padding: 2px 6px; border-radius: 99px; font-weight: 800;">ACTIVE</span>' : ''}
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">@${acc.username}</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button class="${isActive ? 'btn-secondary' : 'btn-primary'}" style="font-size: 0.78rem; padding: 6px 12px;" onclick="NetParaAuth.switchToAccount('${acc.uid}')">
+              ${isActive ? 'Active' : 'Log In'}
+            </button>
+            ${!isActive ? `<button class="icon-btn" style="font-size: 0.8rem; color: var(--text-muted); padding: 4px;" title="Remove from device" onclick="NetParaAuth.removeSavedAccount('${acc.uid}'); NetParaApp.renderAuthAccountsList();">✕</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function showAuthScreen(tab = "accounts") {
     const screen = document.getElementById("auth-overlay");
-    if (screen) screen.style.display = "flex";
+    if (screen) {
+      screen.style.display = "flex";
+      renderAuthAccountsList();
+      if (typeof window.toggleAuthTab === "function") {
+        window.toggleAuthTab(tab);
+      }
+      const closeBtn = document.getElementById("btn-close-auth-modal");
+      if (closeBtn) {
+        closeBtn.style.display = NetParaAuth.isLoggedIn() ? "inline-flex" : "none";
+      }
+    }
   }
 
   function hideAuthScreen() {
     const screen = document.getElementById("auth-overlay");
     if (screen) screen.style.display = "none";
+  }
+
+  function onSessionChanged(user) {
+    hideAuthScreen();
+    updateUserInterface();
     navigate("feed");
+  }
+
+  function onLoggedOut() {
+    showAuthScreen("accounts");
   }
 
   return {
     init,
     navigate,
     updateBadges: updateGlobalBadges,
+    updateUserInterface,
     finishOnboarding,
     showAuthScreen,
     hideAuthScreen,
+    renderAuthAccountsList,
+    onSessionChanged,
+    onLoggedOut,
 
     openProfile: (uid) => {
       navigate("profile", { uid });
