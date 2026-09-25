@@ -181,14 +181,37 @@ open class MainActivity : ComponentActivity() {
         // Request notification permission on Android 13+
         requestNotificationPermissionIfNeeded()
 
-        // Check for incoming call intent
+        // Check for incoming call intent and deep links
         handleCallIntent(intent)
+        handleDeepLink(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         handleCallIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        val uri = intent?.data ?: return
+        android.util.Log.d("iConnectoDeepLink", "Processing App Link / Deep Link: $uri")
+        val path = uri.path ?: ""
+        if (path.contains("/post/")) {
+            val postId = path.substringAfter("/post/").substringBefore("/")
+            if (postId.isNotEmpty()) {
+                webView.postDelayed({
+                    webViewManager.executeJs("window.NetParaApp && window.NetParaApp.openPostDetails && window.NetParaApp.openPostDetails('$postId');")
+                }, 1200)
+            }
+        } else if (path.contains("/profile/")) {
+            val username = path.substringAfter("/profile/").substringBefore("/")
+            if (username.isNotEmpty()) {
+                webView.postDelayed({
+                    webViewManager.executeJs("window.NetParaApp && window.NetParaApp.openUserProfileByName && window.NetParaApp.openUserProfileByName('$username');")
+                }, 1200)
+            }
+        }
     }
 
     private fun handleCallIntent(intent: Intent?) {

@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.iconnecto.social",
+      "sha256_cert_fingerprints": [
+        "14:6D:E9:7F:A3:8C:9C:1F:B4:73:C6:E9:9D:E1:92:A9:E2:BB:8F:7C:E6:87:C7:E4:87:72:81:4A:A4:44:81:22",
+        "YOUR_RELEASE_KEYSTORE_SHA256_FINGERPRINT_HERE"
+      ]
+    }
+  }
+]

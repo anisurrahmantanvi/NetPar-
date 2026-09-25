@@ -219,6 +219,96 @@
         <div id="profile-tab-content"></div>
       </section>
 
+      <!-- View: Post Details (Deep Link: /post/:postId) -->
+      <section class="view-page" id="view-post-details" style="padding-bottom: 80px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--surface-border); background: var(--surface); position: sticky; top: 0; z-index: 10;">
+          <button class="icon-btn" onclick="NetParaApp.navigate('feed')" style="width: 36px; height: 36px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <span style="font-weight: 800; font-size: 1.05rem;">Post</span>
+          <button class="icon-btn" onclick="NetParaApp.shareCurrentPostDetail()" style="color: var(--primary); width: 36px; height: 36px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          </button>
+        </div>
+
+        <div id="post-details-loading" style="text-align: center; padding: 40px; color: var(--text-muted);">
+          <div style="font-size: 1.8rem; margin-bottom: 8px;">⏳</div>
+          <div>Loading post...</div>
+        </div>
+
+        <div id="post-details-not-found" style="display: none; text-align: center; padding: 48px 20px;">
+          <div style="font-size: 2.8rem; margin-bottom: 12px;">🔍</div>
+          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;">Post Not Found</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">The requested post does not exist or may have been deleted.</p>
+          <button class="btn-primary" onclick="NetParaApp.navigate('feed')">Back to Feed</button>
+        </div>
+
+        <div id="post-details-card" style="display: none; padding: 16px;">
+          <!-- Post Header -->
+          <div class="post-card" style="border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 16px;">
+            <div class="post-header">
+              <div class="post-author-info" id="post-detail-author-box">
+                <img id="post-detail-avatar" class="user-avatar" src="" alt="Author" />
+                <div class="author-meta">
+                  <div class="author-name-row">
+                    <span id="post-detail-author-name" class="author-name"></span>
+                    <span id="post-detail-verified" class="verified-badge" style="display: none;">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#0095F6"/><path d="M8.5 12.5L11 15L16 9.5" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <span id="post-detail-timestamp" class="post-time"></span>
+                </div>
+              </div>
+            </div>
+
+            <p id="post-detail-content" style="font-size: 1rem; line-height: 1.5; margin: 12px 0; word-break: break-word;"></p>
+
+            <div id="post-detail-media-box" style="display: none; border-radius: 10px; overflow: hidden; margin: 12px 0; background: #000;">
+              <img id="post-detail-img" src="" alt="" style="display: none; width: 100%; max-height: 480px; object-fit: contain;" />
+              <video id="post-detail-video" src="" controls playsinline style="display: none; width: 100%; max-height: 480px;"></video>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="post-actions-bar" style="border-top: 1px solid var(--surface-border); padding-top: 10px; margin-top: 12px;">
+              <button class="post-action-btn" id="post-detail-like-btn" onclick="NetParaApp.toggleLikePostDetail()">
+                <span id="post-detail-like-icon">❤️</span>
+                <span id="post-detail-like-count">0</span>
+              </button>
+              <button class="post-action-btn" onclick="document.getElementById('post-detail-comment-input').focus()">
+                <span>💬</span>
+                <span id="post-detail-comment-count">0</span>
+              </button>
+              <button class="post-action-btn" onclick="NetParaApp.shareCurrentPostDetail()">
+                <span>🔄</span>
+                <span>Share</span>
+              </button>
+              <button class="post-action-btn" id="post-detail-save-btn" onclick="NetParaApp.toggleSavePostDetail()">
+                <span>💾</span>
+                <span>Save</span>
+              </button>
+            </div>
+
+            <!-- Public URL box -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: var(--surface-hover); border-radius: 8px; padding: 8px 12px; margin-top: 12px; font-size: 0.8rem;">
+              <span id="post-detail-public-url" style="color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+              <button class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px; flex-shrink: 0; margin-left: 8px;" onclick="NetParaApp.copyCurrentPostDetailUrl()">Copy Link</button>
+            </div>
+          </div>
+
+          <!-- Comments on this Post -->
+          <div style="background: var(--surface); border-radius: var(--radius-md); padding: 16px; border: 1px solid var(--surface-border);">
+            <h4 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 14px;">Comments</h4>
+            <div id="post-detail-comments-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;"></div>
+
+            <!-- Add Comment Form -->
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="post-detail-comment-input" class="form-input" placeholder="Write a comment..." style="flex: 1;" onkeydown="if(event.key === 'Enter') NetParaApp.submitPostDetailComment()" />
+              <button class="btn-primary" style="padding: 8px 16px;" onclick="NetParaApp.submitPostDetailComment()">Send</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- View: Menu (Settings, Help & Support, Hub) -->
       <section class="view-page" id="view-menu">
         <div class="menu-container">

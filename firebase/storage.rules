@@ -14,6 +14,9 @@ service firebase.storage {
       return !fileName.matches('.*\\.(exe|apk|dex|sh|bat|cmd|vbs|scr|bin|jar|js|html|htm|php)$');
     }
 
+    // ==========================================
+    // USER PROFILE & COVER MEDIA
+    // ==========================================
     match /users/{userId}/{fileName} {
       allow read: if true;
       allow write: if isOwner(userId)
@@ -22,6 +25,9 @@ service firebase.storage {
                    && request.resource.contentType.matches('image/(jpeg|png|webp)');
     }
 
+    // ==========================================
+    // POST MEDIA (Images, Videos, Thumbnails)
+    // ==========================================
     match /posts/{userId}/{postId}/{fileName} {
       allow read: if true;
       allow write: if isOwner(userId)
@@ -32,6 +38,7 @@ service firebase.storage {
                    );
     }
 
+    // Generic post upload path
     match /posts/{fileName} {
       allow read: if true;
       allow write: if isAuthenticated()
@@ -42,6 +49,9 @@ service firebase.storage {
                    );
     }
 
+    // ==========================================
+    // PRIVATE MESSAGING ATTACHMENTS
+    // ==========================================
     match /messages/{conversationId}/media/{fileName} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated()

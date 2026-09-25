@@ -233,16 +233,19 @@ const NetParaFeed = (function () {
     },
 
     sharePost: (postId) => {
-      const posts = NetParaBackend.getPosts();
-      const p = posts.find(x => x.id === postId);
-      const text = p ? p.content.substring(0, 100) + "..." : "Check out this post on NetPara!";
-      const url = "https://netpara.social/p/" + postId;
+      const url = "https://iconnecto.web.app/post/" + postId;
+      const shareText = "Check out this post on iConnecto: " + url;
       if (window.NetParaNative && window.NetParaNative.shareContent) {
-        window.NetParaNative.shareContent("NetPara Post", text, url);
+        window.NetParaNative.shareContent("iConnecto", "Check out this post on iConnecto", url);
       } else if (navigator.share) {
-        navigator.share({ title: "NetPara", text, url }).catch(() => {});
+        navigator.share({ title: "iConnecto", text: "Check out this post on iConnecto", url: url }).catch(() => {});
       } else {
-        alert("Link copied: " + url);
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url);
+          alert("Link copied: " + url);
+        } else {
+          prompt("Copy post link:", url);
+        }
       }
     },
 

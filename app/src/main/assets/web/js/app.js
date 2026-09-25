@@ -318,12 +318,12 @@ const NetParaApp = (function () {
       if (action === "report") {
         NetParaApp.openReportModal(reportTarget.type, reportTarget.id);
       } else if (action === "copy") {
-        const url = "https://netpara.social/p/" + reportTarget.id;
+        const url = "https://iconnecto.web.app/post/" + reportTarget.id;
         if (window.NetParaNative && window.NetParaNative.copyToClipboard) {
           window.NetParaNative.copyToClipboard(url);
         } else {
           navigator.clipboard?.writeText(url);
-          alert("Link copied!");
+          alert("Post link copied: " + url);
         }
       } else if (action === "delete") {
         if (confirm("Delete this post?")) {
@@ -334,6 +334,180 @@ const NetParaApp = (function () {
           }
         }
       }
+    },
+
+    currentDetailPostId: null,
+
+    openPostDetails: async function (postId) {
+      if (!postId) return;
+      NetParaApp.currentDetailPostId = postId;
+      navigate("post-details");
+
+      const loadingEl = document.getElementById("post-details-loading");
+      const notFoundEl = document.getElementById("post-details-not-found");
+      const cardEl = document.getElementById("post-details-card");
+
+      if (loadingEl) loadingEl.style.display = "block";
+      if (notFoundEl) notFoundEl.style.display = "none";
+      if (cardEl) cardEl.style.display = "none";
+
+      let post = NetParaBackend.getPosts().find(p => p.id === postId || p.postId === postId);
+
+      // If not in local cache, query live Cloud Firestore
+      if (!post && window.firebase && firebase.firestore) {
+        try {
+          const snap = await firebase.firestore().collection("posts").doc(postId).get();
+          if (snap.exists) {
+            const data = snap.data();
+            post = {
+              id: snap.id,
+              postId: snap.id,
+              authorId: data.authorId,
+              authorName: data.authorName,
+              authorAvatar: data.authorPhoto || data.authorAvatar,
+              authorVerified: false,
+              content: data.text || data.content,
+              mediaUrls: data.mediaUrl ? [data.mediaUrl] : (data.mediaUrls || []),
+              videoUrl: data.mediaType === "video" ? data.mediaUrl : null,
+              likesCount: data.likeCount || 0,
+              commentsCount: data.commentCount || 0,
+              createdAt: data.createdAt?.toDate ? data.createdAt.toDate().getTime() : Date.now()
+            };
+          }
+        } catch (e) {
+          console.warn("Firestore post fetch note:", e);
+        }
+      }
+
+      if (loadingEl) loadingEl.style.display = "none";
+
+      if (!post) {
+        if (notFoundEl) notFoundEl.style.display = "block";
+        return;
+      }
+
+      if (cardEl) cardEl.style.display = "block";
+
+      // Render author info
+      const avatarEl = document.getElementById("post-detail-avatar");
+      const nameEl = document.getElementById("post-detail-author-name");
+      const timeEl = document.getElementById("post-detail-timestamp");
+      const contentEl = document.getElementById("post-detail-content");
+      const publicUrlEl = document.getElementById("post-detail-public-url");
+
+      if (avatarEl) avatarEl.src = post.authorAvatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80";
+      if (nameEl) nameEl.innerText = post.authorName || "User";
+      if (timeEl) timeEl.innerText = new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      if (contentEl) contentEl.innerText = post.content || post.text || "";
+
+      const publicUrl = "https://iconnecto.web.app/post/" + (post.id || post.postId);
+      if (publicUrlEl) publicUrlEl.innerText = publicUrl;
+
+      // Media
+      const mediaBox = document.getElementById("post-detail-media-box");
+      const imgEl = document.getElementById("post-detail-img");
+      const videoEl = document.getElementById("post-detail-video");
+
+      if (mediaBox && imgEl && videoEl) {
+        if (post.mediaUrls && post.mediaUrls.length > 0) {
+          mediaBox.style.display = "block";
+          imgEl.style.display = "block";
+          imgEl.src = post.mediaUrls[0];
+          videoEl.style.display = "none";
+        } else if (post.videoUrl) {
+          mediaBox.style.display = "block";
+          videoEl.style.display = "block";
+          videoEl.src = post.videoUrl;
+          imgEl.style.display = "none";
+        } else {
+          mediaBox.style.display = "none";
+        }
+      }
+
+      // Counters
+      const likeCountEl = document.getElementById("post-detail-like-count");
+      const commentCountEl = document.getElementById("post-detail-comment-count");
+      if (likeCountEl) likeCountEl.innerText = post.likesCount || 0;
+      if (commentCountEl) commentCountEl.innerText = post.commentsCount || 0;
+
+      NetParaApp.renderPostDetailComments(post.id || post.postId);
+    },
+
+    renderPostDetailComments: function (postId) {
+      const container = document.getElementById("post-detail-comments-list");
+      if (!container) return;
+
+      const comments = NetParaBackend.getComments(postId);
+      if (!comments || comments.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">No comments yet. Write the first response!</div>';
+        return;
+      }
+
+      container.innerHTML = comments.map(c => `
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <img src="${c.userAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=60&q=80'}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" />
+          <div style="background: var(--surface-hover); border-radius: 10px; padding: 8px 12px; flex: 1;">
+            <div style="font-weight: 700; font-size: 0.85rem;">${c.userName}</div>
+            <div style="font-size: 0.88rem; margin-top: 2px;">${c.text}</div>
+          </div>
+        </div>
+      `).join("");
+    },
+
+    toggleLikePostDetail: function () {
+      if (!NetParaApp.currentDetailPostId) return;
+      NetParaBackend.toggleReaction(NetParaApp.currentDetailPostId, "love");
+      const post = NetParaBackend.getPosts().find(p => p.id === NetParaApp.currentDetailPostId);
+      const countEl = document.getElementById("post-detail-like-count");
+      if (countEl && post) countEl.innerText = post.likesCount || 0;
+      if (window.NetParaNative) window.NetParaNative.vibrate(25);
+    },
+
+    toggleSavePostDetail: function () {
+      if (!NetParaApp.currentDetailPostId) return;
+      const isSaved = NetParaBackend.toggleSavePost(NetParaApp.currentDetailPostId);
+      if (window.NetParaNative) {
+        window.NetParaNative.showToast(isSaved ? "Saved to bookmarks" : "Removed from bookmarks");
+      } else {
+        alert(isSaved ? "Saved to bookmarks" : "Removed from bookmarks");
+      }
+    },
+
+    shareCurrentPostDetail: function () {
+      if (!NetParaApp.currentDetailPostId) return;
+      const url = "https://iconnecto.web.app/post/" + NetParaApp.currentDetailPostId;
+      if (window.NetParaNative && window.NetParaNative.shareContent) {
+        window.NetParaNative.shareContent("iConnecto Post", "Check out this post on iConnecto", url);
+      } else if (navigator.share) {
+        navigator.share({ title: "iConnecto", text: "Check out this post on iConnecto", url }).catch(() => {});
+      } else {
+        NetParaApp.copyCurrentPostDetailUrl();
+      }
+    },
+
+    copyCurrentPostDetailUrl: function () {
+      if (!NetParaApp.currentDetailPostId) return;
+      const url = "https://iconnecto.web.app/post/" + NetParaApp.currentDetailPostId;
+      if (window.NetParaNative && window.NetParaNative.copyToClipboard) {
+        window.NetParaNative.copyToClipboard(url);
+        window.NetParaNative.showToast("Link copied to clipboard! 📋");
+      } else {
+        navigator.clipboard?.writeText(url);
+        alert("Link copied: " + url);
+      }
+    },
+
+    submitPostDetailComment: function () {
+      const input = document.getElementById("post-detail-comment-input");
+      if (!input || !input.value.trim() || !NetParaApp.currentDetailPostId) return;
+      const text = input.value.trim();
+      input.value = "";
+
+      NetParaBackend.addComment(NetParaApp.currentDetailPostId, text);
+      NetParaApp.renderPostDetailComments(NetParaApp.currentDetailPostId);
+      const post = NetParaBackend.getPosts().find(p => p.id === NetParaApp.currentDetailPostId);
+      const countEl = document.getElementById("post-detail-comment-count");
+      if (countEl && post) countEl.innerText = post.commentsCount || 0;
     },
 
     openShareModal: () => {
