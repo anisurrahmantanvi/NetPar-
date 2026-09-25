@@ -20,11 +20,6 @@
         <span class="brand-title">iConnecto</span>
       </div>
 
-      <div class="network-pill" id="top-network-pill" onclick="NetParaSettings.openFirebaseModal()" style="cursor: pointer;" title="ফায়ারবেস ক্লাউড স্ট্যাটাস">
-        <span class="network-dot"></span>
-        <span id="top-network-label">Online</span>
-      </div>
-
       <div class="top-bar-actions">
         <button class="icon-btn" onclick="NetParaApp.openShareModal()" aria-label="Share with Friends" title="বন্ধুদের সাথে শেয়ার করুন" style="color: #10B981;">
           <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
@@ -157,11 +152,23 @@
 
       <!-- View: Profile -->
       <section class="view-page" id="view-profile">
-        <img class="profile-cover" id="profile-cover-img" src="" alt="Cover" />
+        <div class="profile-cover-wrapper">
+          <img class="profile-cover" id="profile-cover-img" src="" alt="Cover" />
+          <label id="profile-cover-edit-btn" class="profile-cover-edit-btn" for="profile-cover-file-input" style="display: none;">
+            <span>📷 Change Cover</span>
+          </label>
+          <input type="file" id="profile-cover-file-input" accept="image/*" style="display: none;" onchange="NetParaProfile.handleCoverUpload(event)" />
+        </div>
 
         <div class="profile-header-card">
           <div class="profile-avatar-row">
-            <img class="profile-avatar-large" id="profile-avatar-img" src="" alt="Avatar" />
+            <div class="profile-avatar-wrapper">
+              <img class="profile-avatar-large" id="profile-avatar-img" src="" alt="Avatar" />
+              <label id="profile-avatar-camera-btn" class="profile-avatar-camera-badge" for="profile-avatar-file-input" style="display: none;" title="Change Profile Picture">
+                📷
+              </label>
+              <input type="file" id="profile-avatar-file-input" accept="image/*" style="display: none;" onchange="NetParaProfile.handleAvatarUpload(event)" />
+            </div>
             <div class="profile-actions" id="profile-action-buttons"></div>
           </div>
 
@@ -254,7 +261,7 @@
               <div class="shortcut-title">Messages</div>
               <div class="shortcut-desc">Direct chats</div>
             </div>
-            <div class="menu-shortcut-card" onclick="NetParaProfile.show('user_me'); NetParaProfile.setTab('saved'); NetParaApp.navigate('profile');">
+            <div class="menu-shortcut-card" onclick="NetParaProfile.show(NetParaBackend.getCurrentUserId()); NetParaProfile.setTab('saved'); NetParaApp.navigate('profile');">
               <div class="shortcut-icon" style="background: rgba(245, 158, 11, 0.12); color: var(--warning);">💾</div>
               <div class="shortcut-title">Saved</div>
               <div class="shortcut-desc">Bookmarked posts</div>
@@ -565,6 +572,19 @@
 
         <!-- 3. Sign Up Form -->
         <div id="form-signup" style="display: none;">
+          <!-- Profile Picture Upload Selector -->
+          <div class="signup-avatar-picker">
+            <div class="signup-avatar-wrapper" onclick="document.getElementById('signup-avatar-file-input').click()" title="Tap to select profile picture">
+              <img id="signup-avatar-preview" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80" class="signup-avatar-circle" alt="Avatar Preview" />
+              <div class="signup-avatar-badge">📷</div>
+            </div>
+            <input type="file" id="signup-avatar-file-input" accept="image/*" style="display: none;" onchange="handleSignupAvatarSelected(event)" />
+            <button type="button" class="btn-secondary" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 99px;" onclick="document.getElementById('signup-avatar-file-input').click()">
+              📷 Choose Profile Photo
+            </button>
+            <span style="font-size: 0.74rem; color: var(--text-muted);">From gallery or camera (optional)</span>
+          </div>
+
           <div class="form-group">
             <label class="form-label">Full Name</label>
             <input type="text" id="signup-fullname" class="form-input" placeholder="Your full name" />
@@ -581,7 +601,7 @@
             <label class="form-label">Password</label>
             <input type="password" id="signup-password" class="form-input" placeholder="Minimum 6 characters" />
           </div>
-          <button class="btn-primary" style="width: 100%; padding: 12px; font-weight: 700;" onclick="handleRegisterSubmit()">Create ID & Connect</button>
+          <button class="btn-primary" id="btn-submit-signup" style="width: 100%; padding: 12px; font-weight: 700;" onclick="handleRegisterSubmit()">Create ID & Connect</button>
           <div style="text-align: center; margin-top: 14px; font-size: 0.84rem;">
             Already have an account? <a href="#" onclick="toggleAuthTab('login')" style="color: var(--primary); font-weight: 700;">Sign In</a>
           </div>
@@ -691,7 +711,7 @@
 
   <!-- Edit Profile Modal -->
   <div id="edit-profile-modal" class="modal-overlay">
-    <div class="bottom-sheet-card">
+    <div class="bottom-sheet-card" style="max-height: 90vh;">
       <div class="sheet-handle-bar"></div>
       <div class="sheet-header">
         <button class="icon-btn" onclick="NetParaProfile.closeEditModal()">✕</button>
@@ -699,17 +719,46 @@
         <button class="btn-primary" style="padding: 6px 14px; font-size: 0.85rem;" onclick="NetParaProfile.saveProfile()">Save</button>
       </div>
       <div class="sheet-body">
+        <!-- Photo edit row -->
+        <div class="edit-modal-avatars-row">
+          <div style="position: relative; width: 64px; height: 64px; flex-shrink: 0; cursor: pointer;" onclick="document.getElementById('profile-avatar-file-input').click()">
+            <img id="edit-avatar-preview" src="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);" alt="Avatar" />
+            <span style="position: absolute; bottom: -2px; right: -2px; background: var(--primary); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px;">📷</span>
+          </div>
+          <div style="flex: 1;">
+            <div style="font-weight: 700; font-size: 0.9rem;">Profile Photos</div>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px;" onclick="document.getElementById('profile-avatar-file-input').click()">Change Avatar</button>
+              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px;" onclick="document.getElementById('profile-cover-file-input').click()">Change Cover</button>
+            </div>
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Full Name</label>
           <input type="text" id="edit-fullname-input" class="form-input" />
         </div>
         <div class="form-group">
+          <label class="form-label">Nickname (Optional)</label>
+          <input type="text" id="edit-nickname-input" class="form-input" placeholder="e.g. Tanvi" />
+        </div>
+        <div class="form-group">
           <label class="form-label">Bio</label>
-          <textarea id="edit-bio-input" class="form-input" style="height: 80px;"></textarea>
+          <textarea id="edit-bio-input" class="form-input" style="height: 70px;"></textarea>
         </div>
         <div class="form-group">
           <label class="form-label">Website</label>
           <input type="url" id="edit-website-input" class="form-input" placeholder="https://yourpage.com" />
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">Current City</label>
+            <input type="text" id="edit-city-input" class="form-input" placeholder="e.g. Dhaka" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hometown</label>
+            <input type="text" id="edit-hometown-input" class="form-input" placeholder="e.g. Bangladesh" />
+          </div>
         </div>
       </div>
     </div>
@@ -1137,7 +1186,32 @@
       }
     }
 
-    function handleLoginSubmit() {
+    let signupStagedAvatarDataUrl = null;
+
+    async function handleSignupAvatarSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      try {
+        if (window.NetParaProfile && typeof NetParaProfile.compressImage === "function") {
+          signupStagedAvatarDataUrl = await NetParaProfile.compressImage(file, 400, 0.82);
+          const previewImg = document.getElementById("signup-avatar-preview");
+          if (previewImg) previewImg.src = signupStagedAvatarDataUrl;
+        } else {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            signupStagedAvatarDataUrl = e.target.result;
+            const previewImg = document.getElementById("signup-avatar-preview");
+            if (previewImg) previewImg.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (e) {
+        console.warn("Avatar preview error:", e);
+      }
+    }
+
+    async function handleLoginSubmit() {
       const idInput = document.getElementById("login-identifier");
       const passInput = document.getElementById("login-password");
       const remInput = document.getElementById("login-remember");
@@ -1146,17 +1220,33 @@
       const pass = passInput ? passInput.value : "";
       const rem = remInput ? remInput.checked : true;
 
-      const res = NetParaAuth.login(id, pass, rem);
-      if (res.success) {
-        if (idInput) idInput.value = "";
-        if (passInput) passInput.value = "";
-        NetParaApp.hideAuthScreen();
-      } else {
-        alert(res.message);
+      const btn = document.querySelector("#form-login .btn-primary");
+      const origText = btn ? btn.innerText : "Sign In";
+      if (btn) {
+        btn.innerText = "Signing in...";
+        btn.disabled = true;
+      }
+
+      try {
+        const res = await NetParaAuth.login(id, pass, rem);
+        if (res && res.success) {
+          if (idInput) idInput.value = "";
+          if (passInput) passInput.value = "";
+          NetParaApp.hideAuthScreen();
+        } else {
+          alert((res && res.message) || "Could not sign in with these credentials.");
+        }
+      } catch (err) {
+        alert("Sign in error: " + (err.message || err));
+      } finally {
+        if (btn) {
+          btn.innerText = origText;
+          btn.disabled = false;
+        }
       }
     }
 
-    function handleRegisterSubmit() {
+    async function handleRegisterSubmit() {
       const fullNameInput = document.getElementById("signup-fullname");
       const usernameInput = document.getElementById("signup-username");
       const emailInput = document.getElementById("signup-email");
@@ -1167,15 +1257,39 @@
       const email = emailInput ? emailInput.value : "";
       const password = passwordInput ? passwordInput.value : "";
 
-      const res = NetParaAuth.register({ fullName, username, email, password });
-      if (res.success) {
-        if (fullNameInput) fullNameInput.value = "";
-        if (usernameInput) usernameInput.value = "";
-        if (emailInput) emailInput.value = "";
-        if (passwordInput) passwordInput.value = "";
-        NetParaApp.hideAuthScreen();
-      } else {
-        alert(res.message);
+      const btn = document.getElementById("btn-submit-signup");
+      const origText = btn ? btn.innerText : "Create ID & Connect";
+      if (btn) {
+        btn.innerText = "Creating Account & Syncing Firebase...";
+        btn.disabled = true;
+      }
+
+      try {
+        const res = await NetParaAuth.register({ 
+          fullName, 
+          username, 
+          email, 
+          password,
+          avatarUrl: signupStagedAvatarDataUrl
+        });
+
+        if (res && res.success) {
+          if (fullNameInput) fullNameInput.value = "";
+          if (usernameInput) usernameInput.value = "";
+          if (emailInput) emailInput.value = "";
+          if (passwordInput) passwordInput.value = "";
+          signupStagedAvatarDataUrl = null;
+          NetParaApp.hideAuthScreen();
+        } else {
+          alert((res && res.message) || "Could not create account. Please check your information.");
+        }
+      } catch (err) {
+        alert("Account registration error: " + (err.message || err));
+      } finally {
+        if (btn) {
+          btn.innerText = origText;
+          btn.disabled = false;
+        }
       }
     }
 

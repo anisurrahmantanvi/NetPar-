@@ -128,7 +128,31 @@ const NetParaAuth = (function () {
   }
 
   function validateUsername(username) {
-    return /^[a-zA-Z0-9_]{3,25}$/.test(username);
+    if (!username) return false;
+    const clean = username.trim().toLowerCase();
+    return /^[a-zA-Z0-9_.-]{3,30}$/.test(clean);
+  }
+
+  function updateSessionUser(patch) {
+    try {
+      const session = getSession();
+      if (session) {
+        const updated = { ...session, ...patch };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
+      }
+      // Also update in saved accounts
+      const myUid = patch.uid || (session ? session.uid : null);
+      if (myUid) {
+        const accounts = getSavedAccounts();
+        const idx = accounts.findIndex(a => a.uid === myUid);
+        if (idx !== -1) {
+          accounts[idx] = { ...accounts[idx], ...patch };
+          localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to update session user:", e);
+    }
   }
 
   return {
@@ -139,6 +163,7 @@ const NetParaAuth = (function () {
     },
 
     getCurrentSession: () => getSession(),
+    updateSessionUser,
 
     getSavedAccounts,
     removeSavedAccount,
@@ -146,7 +171,7 @@ const NetParaAuth = (function () {
     /**
      * Switch instantly between accounts on this device
      */
-    switchToAccount: (uid) => {
+    switchToAccount: async (uid) => {
       const db = NetParaBackend.getDb();
       let user = db.users.find(u => u.uid === uid);
       if (!user) {
@@ -179,7 +204,7 @@ const NetParaAuth = (function () {
       setSession(user, true);
 
       if (window.NetParaFirebase && window.NetParaFirebase.syncUserToCloud) {
-        NetParaFirebase.syncUserToCloud(user);
+        await NetParaFirebase.syncUserToCloud(user);
       }
 
       if (window.NetParaApp && typeof NetParaApp.onSessionChanged === "function") {
@@ -197,7 +222,7 @@ const NetParaAuth = (function () {
     /**
      * Sign In with username or email and password
      */
-    login: (identifier, password, remember = true) => {
+    login: async (identifier, password, remember = true) => {
       if (!identifier || !identifier.trim()) {
         return { success: false, message: "Please enter your username or email." };
       }
@@ -229,10 +254,15 @@ const NetParaAuth = (function () {
         return { success: false, message: "Password must be at least 6 characters." };
       }
 
+      // Try signing in to Firebase Auth
+      if (user.email && password && window.NetParaFirebase && window.NetParaFirebase.loginFirebaseUser) {
+        await NetParaFirebase.loginFirebaseUser(user.email, password);
+      }
+
       setSession(user, remember);
 
       if (window.NetParaFirebase && window.NetParaFirebase.syncUserToCloud) {
-        NetParaFirebase.syncUserToCloud(user);
+        await NetParaFirebase.syncUserToCloud(user);
       }
 
       if (window.NetParaApp && typeof NetParaApp.onSessionChanged === "function") {
@@ -248,25 +278,30 @@ const NetParaAuth = (function () {
     },
 
     /**
-     * Register a new unique ID
+     * Register a new unique ID & Sync to Firebase
      */
-    register: (userData) => {
+    register: async (userData) => {
       const { fullName, username, email, password, avatarUrl } = userData;
 
       if (!fullName || fullName.trim().length < 2) {
-        return { success: false, message: "Please enter your full name." };
+        return { success: false, message: "Please enter your full name (minimum 2 characters)." };
       }
-      if (!validateUsername(username)) {
-        return { success: false, message: "Username must be 3-25 characters (letters, numbers, underscore only)." };
+      if (!username || !username.trim()) {
+        return { success: false, message: "Please choose a username handle." };
       }
-      if (!validateEmail(email)) {
+
+      // Sanitize username
+      const cleanUsername = username.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_.-]/g, "");
+      if (cleanUsername.length < 3 || cleanUsername.length > 30) {
+        return { success: false, message: "Username must be 3-30 characters (letters, numbers, underscore)." };
+      }
+      if (!email || !validateEmail(email)) {
         return { success: false, message: "Please enter a valid email address." };
       }
       if (!password || password.length < 6) {
         return { success: false, message: "Password must be at least 6 characters long." };
       }
 
-      const cleanUsername = username.toLowerCase().trim();
       const cleanEmail = email.toLowerCase().trim();
       const db = NetParaBackend.getDb();
       const exists = db.users.some(u => 
@@ -275,17 +310,39 @@ const NetParaAuth = (function () {
       );
 
       if (exists) {
-        return { success: false, message: "Username or email is already taken. Try another or log in." };
+        return { success: false, message: "Username or email is already taken. Try another or sign in." };
       }
 
-      const newUid = "user_" + Date.now();
-      const defaultAvatars = [
-        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=400&q=80"
-      ];
-      const randomAvatar = defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
+      // Process and upload profile picture if provided
+      let finalAvatarUrl = avatarUrl;
+      if (finalAvatarUrl && finalAvatarUrl.startsWith("data:") && window.NetParaFirebase && window.NetParaFirebase.uploadImageToStorage) {
+        try {
+          finalAvatarUrl = await NetParaFirebase.uploadImageToStorage(finalAvatarUrl, "avatars");
+        } catch (_) {}
+      }
+
+      if (!finalAvatarUrl) {
+        const defaultAvatars = [
+          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80",
+          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+          "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=400&q=80",
+          "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=400&q=80"
+        ];
+        finalAvatarUrl = defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
+      }
+
+      // Register in Firebase Authentication
+      let newUid = "user_" + Date.now();
+      if (window.NetParaFirebase && window.NetParaFirebase.registerFirebaseUser) {
+        try {
+          const fbUser = await NetParaFirebase.registerFirebaseUser(cleanEmail, password, fullName.trim(), finalAvatarUrl);
+          if (fbUser && fbUser.uid) {
+            newUid = fbUser.uid;
+          }
+        } catch (e) {
+          console.warn("Firebase Auth setup note:", e);
+        }
+      }
 
       const newUser = {
         uid: newUid,
@@ -295,7 +352,7 @@ const NetParaAuth = (function () {
         email: cleanEmail,
         bio: "Connecting on iConnecto! 🚀✨",
         website: "",
-        avatarUrl: avatarUrl || randomAvatar,
+        avatarUrl: finalAvatarUrl,
         coverUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
         isVerified: false,
         isPremium: false,
@@ -318,8 +375,9 @@ const NetParaAuth = (function () {
       NetParaBackend.save();
       setSession(newUser, true);
 
+      // Sync user to Cloud Firestore
       if (window.NetParaFirebase && window.NetParaFirebase.syncUserToCloud) {
-        NetParaFirebase.syncUserToCloud(newUser);
+        await NetParaFirebase.syncUserToCloud(newUser);
       }
 
       if (window.NetParaApp && typeof NetParaApp.onSessionChanged === "function") {
@@ -327,7 +385,7 @@ const NetParaAuth = (function () {
       }
 
       if (window.NetParaNative) {
-        window.NetParaNative.showToast("Account @" + cleanUsername + " created successfully!");
+        window.NetParaNative.showToast("Welcome to iConnecto, @" + cleanUsername + "!");
         window.NetParaNative.vibrate(30);
       }
 

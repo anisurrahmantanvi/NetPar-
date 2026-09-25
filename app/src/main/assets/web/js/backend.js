@@ -154,6 +154,17 @@ const NetParaBackend = (function () {
       if (idx !== -1) {
         db.users[idx] = { ...db.users[idx], ...patch };
         saveDb(db);
+
+        // Also update active session user if it's the current user
+        if (targetUid === NetParaBackend.getCurrentUserId() && window.NetParaAuth && typeof NetParaAuth.updateSessionUser === "function") {
+          NetParaAuth.updateSessionUser(patch);
+        }
+
+        // Sync updated user to Cloud Firestore
+        if (window.NetParaFirebase && typeof NetParaFirebase.syncUserToCloud === "function") {
+          NetParaFirebase.syncUserToCloud(db.users[idx]);
+        }
+
         return db.users[idx];
       }
       return null;
@@ -487,11 +498,17 @@ const NetParaBackend = (function () {
       );
       if (existing) return existing;
 
+      const me = NetParaBackend.getCurrentUser();
+      const myFriends = me?.friendsList || [];
+      const targetUser = db.users.find(u => u.uid === targetUid);
+      const targetFriends = targetUser?.friendsList || [];
+      const realMutual = myFriends.filter(id => targetFriends.includes(id)).length;
+
       const newReq = {
         id: "req_" + Date.now(),
         fromUid: myUid,
         toUid: targetUid,
-        mutualFriends: Math.floor(Math.random() * 8) + 2,
+        mutualFriends: realMutual,
         timestamp: Date.now(),
         status: "pending"
       };
@@ -541,7 +558,7 @@ const NetParaBackend = (function () {
       ).map(u => ({
         ...u,
         hasRequested: pendingSent.includes(u.uid),
-        mutualFriends: Math.floor(Math.random() * 12) + 1
+        mutualFriends: friends.filter(id => (u.friendsList || []).includes(id)).length
       }));
     },
 

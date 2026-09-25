@@ -28,6 +28,13 @@ const NetParaFeed = (function () {
     const db = NetParaBackend.getDb();
     const stories = db.stories || [];
 
+    if (stories.length === 0) {
+      container.innerHTML = "";
+      container.style.display = "none";
+      return;
+    }
+
+    container.style.display = "flex";
     container.innerHTML = stories.map(s => `
       <div class="story-item" onclick="NetParaFeed.openStory('${s.id}')">
         <div class="story-ring ${s.isOwn ? '' : ''}">

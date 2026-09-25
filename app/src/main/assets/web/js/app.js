@@ -138,7 +138,7 @@ const NetParaApp = (function () {
     } else if (viewName === "notifications") {
       NetParaNotifications.init();
     } else if (viewName === "profile") {
-      NetParaProfile.show(params.uid || "user_me");
+      NetParaProfile.show(params.uid || NetParaBackend.getCurrentUserId());
     } else if (viewName === "menu") {
       NetParaMenu.init();
     }

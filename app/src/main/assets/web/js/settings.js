@@ -53,7 +53,7 @@ const NetParaSettings = (function () {
 
     togglePrivateProfile: () => {
       isPrivate = !isPrivate;
-      NetParaBackend.updateUser("user_me", { isPrivate });
+      NetParaBackend.updateUser(NetParaBackend.getCurrentUserId(), { isPrivate });
       if (window.NetParaNative) {
         window.NetParaNative.showToast(isPrivate ? "Profile is now private" : "Profile is now public");
       }
@@ -81,13 +81,14 @@ const NetParaSettings = (function () {
     },
 
     onRewardedRewardEarned: (amount, type) => {
-      NetParaBackend.updateUser("user_me", { isPremium: true, isVerified: true });
+      const myUid = NetParaBackend.getCurrentUserId();
+      NetParaBackend.updateUser(myUid, { isPremium: true, isVerified: true });
       if (window.NetParaNative) {
         window.NetParaNative.setAdFree(true);
-        window.NetParaNative.showToast("🎉 NetPara Gold VIP Activated!");
+        window.NetParaNative.showToast("🎉 iConnecto VIP Activated!");
       }
       NetParaSettings.closePremiumModal();
-      NetParaProfile.show("user_me");
+      NetParaProfile.show(myUid);
     },
 
     openBlockedUsersModal: () => {

@@ -152,7 +152,7 @@ const NetParaFriends = (function () {
   }
 
   function renderAllFriends(container) {
-    let friends = NetParaBackend.getFriends("user_me");
+    let friends = NetParaBackend.getFriends(NetParaBackend.getCurrentUserId());
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       friends = friends.filter(f => f.fullName.toLowerCase().includes(q) || f.username.toLowerCase().includes(q));

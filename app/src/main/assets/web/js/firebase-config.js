@@ -66,22 +66,28 @@ const NetParaFirebase = (function () {
         db = firebase.firestore();
         auth = firebase.auth();
 
-        // Enable multi-tab offline persistence
+        // Enable multi-tab offline persistence safely
         try {
           await db.enablePersistence({ synchronizeTabs: true });
           console.log("Firestore offline persistence enabled.");
         } catch (err) {
-          if (err.code === "failed-precondition") {
-            console.warn("Firestore persistence: multiple tabs open.");
-          } else if (err.code === "unimplemented") {
-            console.warn("Firestore persistence not supported in this browser.");
-          }
+          console.warn("Firestore persistence note:", err.message || err.code);
         }
 
         window.NetParaFirebaseDb = db;
         window.NetParaFirebaseAuth = auth;
         isInitialized = true;
         isCloudConnected = true;
+
+        // Auto authenticate if no user currently logged into Firebase Auth
+        if (auth && !auth.currentUser) {
+          try {
+            await auth.signInAnonymously();
+            console.log("Firebase anonymous session active for Firestore access.");
+          } catch (e) {
+            console.warn("Anonymous auth warning:", e.message);
+          }
+        }
 
         this.updatePillStatus(true, "Firebase Live");
         this.startRealtimeListeners();
@@ -90,7 +96,7 @@ const NetParaFirebase = (function () {
       } catch (error) {
         console.error("Firebase init error:", error);
         isCloudConnected = false;
-        this.updatePillStatus(false, "Offline / Demo");
+        this.updatePillStatus(false, "Offline");
         return false;
       }
     },
@@ -334,25 +340,133 @@ const NetParaFirebase = (function () {
      * Sync user profile to Firestore
      */
     syncUserToCloud: async function (user) {
-      if (!db || !isCloudConnected || !user) return false;
+      if (!db && window.firebase && firebase.firestore) {
+        db = firebase.firestore();
+      }
+      if (!db || !user) return false;
+
+      // Ensure authenticated state for Firestore rules
+      if (auth && !auth.currentUser) {
+        try {
+          await auth.signInAnonymously();
+        } catch (_) {}
+      }
+
       try {
-        await db.collection("users").doc(user.uid).set({
+        const payload = {
           uid: user.uid,
           username: user.username,
           fullName: user.fullName,
           nickname: user.nickname || "",
-          avatarUrl: user.avatarUrl,
+          email: user.email || "",
+          avatarUrl: user.avatarUrl || "",
           coverUrl: user.coverUrl || "",
           bio: user.bio || "",
+          website: user.website || "",
+          city: user.city || "Dhaka",
+          hometown: user.hometown || "Bangladesh",
+          work: user.work || "",
+          role: user.role || "user",
           isVerified: !!user.isVerified,
           isPremium: !!user.isPremium,
           isOnline: true,
-          lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (user.createdAt) {
+          payload.createdAt = user.createdAt;
+        }
+
+        await db.collection("users").doc(user.uid).set(payload, { merge: true });
+        console.log("User successfully synced to Cloud Firestore:", user.uid, user.username);
         return true;
       } catch (e) {
         console.warn("Error syncing user to Firestore:", e);
         return false;
+      }
+    },
+
+    /**
+     * Upload an image (DataURL/Base64) to Firebase Cloud Storage with fallback
+     */
+    uploadImageToStorage: async function (dataUrl, folder = "avatars") {
+      if (!dataUrl) return null;
+      if (dataUrl.startsWith("http://") || dataUrl.startsWith("https://")) {
+        return dataUrl;
+      }
+
+      if (window.firebase && firebase.storage) {
+        try {
+          const storage = firebase.storage();
+          const storageRef = storage.ref();
+          const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substr(2, 6)}.jpg`;
+          const fileRef = storageRef.child(fileName);
+
+          const res = await fetch(dataUrl);
+          const blob = await res.blob();
+          const snapshot = await fileRef.put(blob, { contentType: "image/jpeg" });
+          const downloadUrl = await snapshot.ref.getDownloadURL();
+          console.log("Uploaded image to Firebase Storage:", downloadUrl);
+          return downloadUrl;
+        } catch (e) {
+          console.warn("Firebase Storage upload note (using optimized dataUrl):", e.message || e);
+        }
+      }
+      return dataUrl;
+    },
+
+    /**
+     * Create account in Firebase Authentication
+     */
+    registerFirebaseUser: async function (email, password, displayName, photoURL) {
+      if (!auth && window.firebase && firebase.auth) {
+        auth = firebase.auth();
+      }
+      if (!auth) return null;
+
+      try {
+        const userCred = await auth.createUserWithEmailAndPassword(email, password);
+        if (userCred && userCred.user) {
+          try {
+            await userCred.user.updateProfile({
+              displayName: displayName || "",
+              photoURL: photoURL || ""
+            });
+          } catch (_) {}
+          console.log("Firebase Auth user created:", userCred.user.uid);
+          return userCred.user;
+        }
+      } catch (err) {
+        console.warn("Firebase Auth registration message:", err.code, err.message);
+        if (err.code === "auth/email-already-in-use") {
+          try {
+            const userCred = await auth.signInWithEmailAndPassword(email, password);
+            return userCred.user;
+          } catch (signInErr) {
+            console.warn("Firebase Auth signIn fallback error:", signInErr.code);
+          }
+        }
+        return null;
+      }
+      return null;
+    },
+
+    /**
+     * Sign into Firebase Authentication
+     */
+    loginFirebaseUser: async function (email, password) {
+      if (!auth && window.firebase && firebase.auth) {
+        auth = firebase.auth();
+      }
+      if (!auth) return null;
+
+      try {
+        const userCred = await auth.signInWithEmailAndPassword(email, password);
+        return userCred.user;
+      } catch (err) {
+        console.warn("Firebase Auth login attempt:", err.code, err.message);
+        return null;
       }
     },
 

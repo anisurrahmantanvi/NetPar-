@@ -20,7 +20,13 @@ const NetParaProfile = (function () {
     const coverEl = document.getElementById("profile-cover-img");
     const avatarEl = document.getElementById("profile-avatar-img");
     if (coverEl) coverEl.src = user.coverUrl || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80";
-    if (avatarEl) avatarEl.src = user.avatarUrl;
+    if (avatarEl) avatarEl.src = user.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80";
+
+    // Toggle camera upload buttons if viewing own profile
+    const avatarCamBtn = document.getElementById("profile-avatar-camera-btn");
+    const coverEditBtn = document.getElementById("profile-cover-edit-btn");
+    if (avatarCamBtn) avatarCamBtn.style.display = isOwn ? "flex" : "none";
+    if (coverEditBtn) coverEditBtn.style.display = isOwn ? "inline-flex" : "none";
 
     // Names & Meta
     document.getElementById("profile-display-name").innerText = user.nickname ? `${user.fullName} (${user.nickname})` : user.fullName;
@@ -208,12 +214,141 @@ const NetParaProfile = (function () {
       renderProfile();
     },
 
+    compressImage: function (file, maxWidth = 600, quality = 0.8) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    },
+
+    handleAvatarUpload: async function (event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (window.NetParaNative && window.NetParaNative.showToast) {
+        window.NetParaNative.showToast("Compressing and uploading profile picture...");
+      }
+
+      try {
+        const compressedDataUrl = await NetParaProfile.compressImage(file, 500, 0.82);
+
+        // Immediate visual update on UI
+        const avatarEl = document.getElementById("profile-avatar-img");
+        if (avatarEl) avatarEl.src = compressedDataUrl;
+        const modalPreview = document.getElementById("edit-avatar-preview");
+        if (modalPreview) modalPreview.src = compressedDataUrl;
+
+        // Upload to Firebase Cloud Storage if available
+        let finalUrl = compressedDataUrl;
+        if (window.NetParaFirebase && typeof NetParaFirebase.uploadImageToStorage === "function") {
+          finalUrl = await NetParaFirebase.uploadImageToStorage(compressedDataUrl, "avatars");
+        }
+
+        const myUid = NetParaBackend.getCurrentUserId();
+        NetParaBackend.updateUser(myUid, { avatarUrl: finalUrl });
+
+        // Update Firebase Auth profile
+        if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+          try {
+            await firebase.auth().currentUser.updateProfile({ photoURL: finalUrl });
+          } catch (_) {}
+        }
+
+        // Update global elements
+        const composerAvatar = document.getElementById("home-composer-avatar");
+        if (composerAvatar) composerAvatar.src = finalUrl;
+        const menuAvatar = document.getElementById("menu-user-avatar");
+        if (menuAvatar) menuAvatar.src = finalUrl;
+
+        if (window.NetParaNative) {
+          window.NetParaNative.showToast("Profile picture updated successfully! 🎉");
+          window.NetParaNative.vibrate(25);
+        } else {
+          alert("Profile picture updated successfully! 🎉");
+        }
+      } catch (err) {
+        console.error("Avatar upload failed:", err);
+        alert("Failed to upload profile picture. Please try another image.");
+      }
+      event.target.value = ""; // Reset
+    },
+
+    handleCoverUpload: async function (event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (window.NetParaNative && window.NetParaNative.showToast) {
+        window.NetParaNative.showToast("Uploading cover photo...");
+      }
+
+      try {
+        const compressedDataUrl = await NetParaProfile.compressImage(file, 1200, 0.8);
+
+        // Immediate visual update
+        const coverEl = document.getElementById("profile-cover-img");
+        if (coverEl) coverEl.src = compressedDataUrl;
+        const modalCover = document.getElementById("edit-cover-preview");
+        if (modalCover) modalCover.src = compressedDataUrl;
+
+        // Upload to Firebase Cloud Storage
+        let finalUrl = compressedDataUrl;
+        if (window.NetParaFirebase && typeof NetParaFirebase.uploadImageToStorage === "function") {
+          finalUrl = await NetParaFirebase.uploadImageToStorage(compressedDataUrl, "covers");
+        }
+
+        const myUid = NetParaBackend.getCurrentUserId();
+        NetParaBackend.updateUser(myUid, { coverUrl: finalUrl });
+
+        if (window.NetParaNative) {
+          window.NetParaNative.showToast("Cover photo updated! 🖼️");
+          window.NetParaNative.vibrate(20);
+        }
+      } catch (err) {
+        console.error("Cover upload failed:", err);
+        alert("Failed to upload cover photo.");
+      }
+      event.target.value = ""; // Reset
+    },
+
     openEditModal: () => {
       const user = NetParaBackend.getCurrentUser();
       if (!user) return;
-      document.getElementById("edit-fullname-input").value = user.fullName;
+      document.getElementById("edit-fullname-input").value = user.fullName || "";
+      const nickInput = document.getElementById("edit-nickname-input");
+      if (nickInput) nickInput.value = user.nickname || "";
       document.getElementById("edit-bio-input").value = user.bio || "";
       document.getElementById("edit-website-input").value = user.website || "";
+
+      const cityInput = document.getElementById("edit-city-input");
+      if (cityInput) cityInput.value = user.city || "";
+      const homeInput = document.getElementById("edit-hometown-input");
+      if (homeInput) homeInput.value = user.hometown || "";
+
+      const avatarPreview = document.getElementById("edit-avatar-preview");
+      if (avatarPreview) avatarPreview.src = user.avatarUrl || "img/avatar_anisur_tanvi.jpg";
+      const coverPreview = document.getElementById("edit-cover-preview");
+      if (coverPreview) coverPreview.src = user.coverUrl || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80";
+
       const modal = document.getElementById("edit-profile-modal");
       if (modal) modal.classList.add("open");
     },
@@ -225,8 +360,11 @@ const NetParaProfile = (function () {
 
     saveProfile: () => {
       const fullName = document.getElementById("edit-fullname-input").value.trim();
+      const nickname = document.getElementById("edit-nickname-input") ? document.getElementById("edit-nickname-input").value.trim() : "";
       const bio = document.getElementById("edit-bio-input").value.trim();
       const website = document.getElementById("edit-website-input").value.trim();
+      const city = document.getElementById("edit-city-input") ? document.getElementById("edit-city-input").value.trim() : "";
+      const hometown = document.getElementById("edit-hometown-input") ? document.getElementById("edit-hometown-input").value.trim() : "";
 
       if (!fullName) {
         alert("Full name cannot be empty.");
@@ -235,7 +373,7 @@ const NetParaProfile = (function () {
 
       const cur = NetParaBackend.getCurrentUser();
       const myUid = cur ? cur.uid : NetParaBackend.getCurrentUserId();
-      NetParaBackend.updateUser(myUid, { fullName, bio, website });
+      NetParaBackend.updateUser(myUid, { fullName, nickname, bio, website, city, hometown });
       NetParaProfile.closeEditModal();
       renderProfile();
       if (window.NetParaNative) {
